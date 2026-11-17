@@ -26,3 +26,10 @@ test('fromTab handles (10) groups and cache is not corruptible', () => {
   assert.ok(generateVoicings('C').length > 1);
   assert.ok(generateVoicings('C')[0] && generateVoicings('C')[0].key === 'x32010');
 });
+test('beginner-standard first choices', () => {
+  assert.equal(keys('Bm')[0], 'x24432'); assert.equal(keys('Bb')[0], 'x13331'); assert.equal(keys('B')[0], 'x24442');
+  assert.ok(keys('Ab').slice(0, 3).includes('466544'));
+});
+test('root-position shapes come first', () => {
+  for (const c of ['Dm', 'C', 'G', 'Am', 'F']) for (const v of generateVoicings(c).slice(0, 3)) assert.equal(v.rootBass, true, c + ' ' + v.key);
+});

@@ -78,9 +78,10 @@ function cagedLabel(frets, chord) {
   return null;
 }
 
-export const WEIGHTS = { span: 2, baseFret: 1.5, open: 2, sounding: 2.5, barre: 0, inner: 3, nonRoot: 6, fingers: 1.5 };
+export const WEIGHTS = { span: 2, baseFret: 1.5, open: 2, sounding: 2.5, barre: 0, inner: 3, nonRoot: 6, fingers: 1.5, sandwich: 2.5, caged: 3 };
 export const scoreOf = (f, W = WEIGHTS) => -W.span * f.span - W.baseFret * f.baseFret + W.open * f.openCount + W.sounding * f.count
-  - W.barre * f.barre - W.inner * f.inner - W.nonRoot * f.nonRoot - W.fingers * f.fingersUsed;
+  - W.barre * f.barre - W.inner * f.inner - W.nonRoot * f.nonRoot - W.fingers * f.fingersUsed
+  - W.sandwich * f.sandwich + W.caged * f.caged;
 
 function search(chord, tuning, maxFret, maxSpan, minSounding) {
   const tones = new Set(chordPcs(chord));
@@ -131,12 +132,19 @@ function search(chord, tuning, maxFret, maxSpan, minSounding) {
     const openCount = copy.filter((f) => f === 0).length;
     const rootBass = bassPc === rootPc;
     const fingersUsed = new Set(fr.fingers.filter((x) => x !== null)).size;
-    const feat = { span, baseFret, openCount, count, barre: fr.barre ? 1 : 0, inner, nonRoot: rootBass ? 0 : 1, fingersUsed };
+    const caged = cagedLabel(copy, chord);
+    let sandwich = 0;
+    for (let i = first + 1; !caged && i < last; i++) {
+      if (copy[i] === 0 && copy.slice(0, i).some((f) => f > 0) && copy.slice(i + 1).some((f) => f > 0)) sandwich++;
+    }
+    const feat = { sandwich, caged: caged ? 1 : 0, span, baseFret, openCount, count, barre: fr.barre ? 1 : 0, inner, nonRoot: rootBass ? 0 : 1, fingersUsed };
     const score = scoreOf(feat);
-    found.set(key, {
+    const v = {
       frets: copy, fingers: fr.fingers, barre: fr.barre, baseFret, bassPc, rootBass,
-      caged: cagedLabel(copy, chord), score, key,
-    });
+      caged, score, key,
+    };
+    Object.defineProperty(v, "feat", { value: feat });
+    found.set(key, v);
   }
   return [...found.values()];
 }
@@ -159,7 +167,7 @@ export function generateVoicings(chordOrSymbol, { tuning = STANDARD, maxFret = 1
     if (!list.length && (chord.quality === 'dim' || chord.quality === 'aug')) {
       list = search(chord, tuning, maxFret, maxSpan, 3);
     }
-    list.sort((a, b) => b.score - a.score || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+    list.sort((a, b) => (b.rootBass - a.rootBass) || b.score - a.score || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
     hit = list.map(deepFreeze);
     cache.set(ck, hit);
   }
