@@ -18,9 +18,15 @@ function valid(s) {
     Array.isArray(s.saved) && isObj(s.settings);
 }
 
+function validSaved(p) {
+  return isObj(p) && typeof p.id === 'string' && typeof p.tonic === 'string' &&
+    typeof p.mode === 'string' && Array.isArray(p.chords);
+}
+
 function normalize(s) {
   const out = clone(s);
   out.settings = { ...clone(DEFAULT_STATE.settings), ...out.settings };
+  out.saved = out.saved.filter(validSaved);
   return out;
 }
 

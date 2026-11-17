@@ -84,3 +84,21 @@ test('export then import round-trips', () => {
   assert.deepEqual(b.state, a.state);
   assert.deepEqual(createStore(st).state, a.state);
 });
+
+const good = (id) => ({ id, name: 'g', tonic: 'A', mode: 'minor', chords: [] });
+test('bad saved entries are dropped on load and never crash', () => {
+  const st = fake(JSON.stringify({ version: 1, known: ['C'], saved: [null, 1, {}, good('abc')], settings: {} }));
+  const s = createStore(st);
+  assert.deepEqual(s.state.saved.map((p) => p.id), ['abc']);
+  assert.doesNotThrow(() => s.removeSaved('abc'));
+  const s2 = createStore(fake(JSON.stringify({ version: 1, known: [], saved: [null, 1, {}], settings: {} })));
+  assert.doesNotThrow(() => s2.removeSaved('abc'));
+  assert.deepEqual(s2.state.saved, []);
+});
+test('import with mixed saved list keeps only valid entries', () => {
+  const s = createStore(fake());
+  const json = JSON.stringify({ app: 'crutch-chart', version: 1, state: { version: 1, known: ['E'], saved: [null, good('k'), { id: 'x' }], settings: {} } });
+  s.importBackup(json);
+  assert.deepEqual(s.state.saved.map((p) => p.id), ['k']);
+  assert.deepEqual(s.state.known, ['E']);
+});
