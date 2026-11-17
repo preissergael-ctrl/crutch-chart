@@ -57,3 +57,32 @@ test('misc', () => {
   assert.deepEqual(e[1], { roman:'bVII', name:'Bb', role: FUNCTION_PLAIN.away, borrowed:'aeolian' });
   assert.equal(e[0].borrowed, null);
 });
+
+// Independent expectations, derived by hand from the scale notes (stacked thirds).
+const fam = (t, m, s = false) => diatonicFamily(t, m, s).map((x) => x.roman + ':' + x.chord.symbol);
+test('D dorian family', () => {
+  assert.deepEqual(fam('D', 'dorian'), ['i:Dm', 'ii:Em', 'bIII:F', 'IV:G', 'v:Am', 'vi°:Bdim', 'bVII:C']);
+  assert.deepEqual(fam('D', 'dorian', true),
+    ['i7:Dm7', 'ii7:Em7', 'bIIImaj7:Fmaj7', 'IV7:G7', 'v7:Am7', 'viø7:Bm7b5', 'bVIImaj7:Cmaj7']);
+});
+test('F lydian family', () => {
+  assert.deepEqual(fam('F', 'lydian'), ['I:F', 'II:G', 'iii:Am', '#iv°:Bdim', 'V:C', 'vi:Dm', 'vii:Em']);
+  assert.deepEqual(fam('F', 'lydian', true),
+    ['Imaj7:Fmaj7', 'II7:G7', 'iii7:Am7', '#ivø7:Bm7b5', 'Vmaj7:Cmaj7', 'vi7:Dm7', 'vii7:Em7']);
+});
+test('E phrygian family', () => {
+  assert.deepEqual(fam('E', 'phrygian'), ['i:Em', 'bII:F', 'bIII:G', 'iv:Am', 'v°:Bdim', 'bVI:C', 'bvii:Dm']);
+  assert.deepEqual(fam('E', 'phrygian', true),
+    ['i7:Em7', 'bIImaj7:Fmaj7', 'bIII7:G7', 'iv7:Am7', 'vø7:Bm7b5', 'bVImaj7:Cmaj7', 'bvii7:Dm7']);
+});
+test('A harmonic minor family', () => {
+  assert.deepEqual(fam('A', 'harmonicMinor'), ['i:Am', 'ii°:Bdim', 'bIII+:Caug', 'iv:Dm', 'V:E', 'bVI:F', 'vii°:G#dim']);
+  // i (mMaj7), bIII+ (maj7#5) and vii (dim7) have no listed type, so they fall back to triads
+  assert.deepEqual(fam('A', 'harmonicMinor', true),
+    ['i:Am', 'iiø7:Bm7b5', 'bIII+:Caug', 'iv7:Dm7', 'V7:E7', 'bVImaj7:Fmaj7', 'vii°:G#dim']);
+});
+test('G mixolydian family', () => {
+  assert.deepEqual(fam('G', 'mixolydian'), ['I:G', 'ii:Am', 'iii°:Bdim', 'IV:C', 'v:Dm', 'vi:Em', 'bVII:F']);
+  assert.deepEqual(fam('G', 'mixolydian', true),
+    ['I7:G7', 'ii7:Am7', 'iiiø7:Bm7b5', 'IVmaj7:Cmaj7', 'v7:Dm7', 'vi7:Em7', 'bVIImaj7:Fmaj7']);
+});
