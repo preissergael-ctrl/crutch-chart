@@ -5,8 +5,8 @@ const LEAD = 0.1;
 const LOOP_AHEAD = 0.2;
 
 export function createPlayer(engine) {
-  let handles = [];
-  let timers = [];
+  let passes = []; // arrays of handles; only the current and previous pass are kept
+  const timers = new Set();
   let gen = 0;
 
   const player = {
@@ -15,10 +15,10 @@ export function createPlayer(engine) {
 
     stop() {
       gen++;
-      for (const h of handles) h.stop();
+      for (const pass of passes) for (const h of pass) h.stop();
       for (const t of timers) clearTimeout(t);
-      handles = [];
-      timers = [];
+      passes = [];
+      timers.clear();
       player.playing = false;
     },
 
@@ -33,10 +33,17 @@ export function createPlayer(engine) {
       const beats = Number(String(opts.timeSig ?? 4).split('/')[0]) || 4;
       const beat = 60 / bpm;
       const after = (when, fn) => {
-        timers.push(setTimeout(() => { if (mine === gen) fn(); }, Math.max(0, (when - engine.now()) * 1000)));
+        const t = setTimeout(() => {
+          timers.delete(t);
+          if (mine === gen) fn();
+        }, Math.max(0, (when - engine.now()) * 1000));
+        timers.add(t);
       };
 
       const runPass = (startAt, withCountIn) => {
+        const handles = [];
+        passes = passes.slice(-1); // the pass before the previous one has fully ended
+        passes.push(handles);
         let offset = 0;
         if (withCountIn) {
           for (let b = 0; b < beats; b++) handles.push(engine.playClick(startAt + b * beat, b === 0));
@@ -49,8 +56,13 @@ export function createPlayer(engine) {
         }
         sched.chordStarts.forEach((cs, i) => after(t0 + cs, () => player.onStep(i)));
         const end = t0 + sched.length;
-        if (loop) after(end - LOOP_AHEAD, () => runPass(end, false));
-        else after(end, () => { player.playing = false; });
+        if (!sched.events.length || sched.length <= 0) {
+          player.playing = false; // nothing to play: never loop on an empty pass
+        } else if (loop && sched.length > LOOP_AHEAD) {
+          after(end - LOOP_AHEAD, () => runPass(end, false));
+        } else {
+          after(end, () => { player.playing = false; });
+        }
       };
 
       player.playing = true;
