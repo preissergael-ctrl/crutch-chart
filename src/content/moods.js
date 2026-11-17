@@ -12,5 +12,5 @@ export const MOODS = [
   { id: 'bluesy', name: 'Bluesy', blurb: 'Gritty and swaggering, the sound of the blues.', progressionIds: ['twelve-bar'] },
   { id: 'rock', name: 'Rock', blurb: 'Strong open chords that sound great strummed hard.', progressionIds: ['mixo-rock', 'rock-14b74'] },
   { id: 'spanish', name: 'Spanish', blurb: 'Dramatic, fiery and tense, like flamenco.', progressionIds: ['andalusian', 'spanish-phrygian'] },
-  { id: 'dark', name: 'Dark', blurb: 'Uneasy and brooding, with chords packed tight together.', progressionIds: ['phrygian-vamp', 'harmonic'] },
+  { id: 'dark', name: 'Dark', blurb: 'Uneasy and brooding, with tense, pulling chords.', progressionIds: ['phrygian-vamp', 'harmonic'] },
 ];

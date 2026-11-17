@@ -6,6 +6,6 @@ export const METHODS = [
   { id: 'circle', name: 'Circle of fifths', summary: 'Chain chords that each fall by the same smooth step, and end up at home.', lessonId: 'circle' },
   { id: 'borrow', name: 'Borrow a chord', summary: 'Swap one chord for its cousin from a neighboring scale to add a surprise.', lessonId: 'borrowed' },
   { id: 'modes', name: 'Try a mode', summary: 'Modes are the same notes with a different home, and each has its own color. Hear them one at a time.', lessonId: 'modes' },
-  { id: 'spice', name: 'Add spice', summary: 'Add one extra note to a chord to make it dreamier, bluesier, or more open.', lessonId: 'colors' },
+  { id: 'spice', name: 'Add spice', summary: 'Change or add one note in a chord to make it dreamier, bluesier, or more open.', lessonId: 'colors' },
   { id: 'bass', name: 'Change the bass', summary: 'Put a different note in the bass under the same chord so the bass line walks up or down.', lessonId: 'slash-chords' },
 ];

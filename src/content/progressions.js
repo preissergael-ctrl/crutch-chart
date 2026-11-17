@@ -36,7 +36,7 @@ export const PROGRESSIONS = {
   'two-five-one': p('Two, five, one', ['ii7', 'V7', 'Imaj7'], 'C', 'ionian', 90, 4,
     'This is the jazz way to arrive home. Each chord moves the same way, D to G to C (a jump musicians call a fifth down), so every change feels like a natural slide that ends calmly on home.'),
   'twelve-bar': p('Twelve-bar blues', ['I7', 'I7', 'I7', 'I7', 'IV7', 'IV7', 'I7', 'I7', 'V7', 'IV7', 'I7', 'V7'], 'A', 'mixolydian', 100, 4,
-    'This twelve-chord pattern is the backbone of blues. Every chord is a seven chord, which has a bit of grit and always wants to move on, so the whole thing leans forward.'),
+    'This twelve-bar pattern, built from just three chords, is the backbone of blues. Every chord is a seven chord, which has a bit of grit and always wants to move on, so the whole thing leans forward.'),
   'mixo-rock': p('Rock flat-seven', ['I', 'bVII', 'IV'], 'G', 'mixolydian', 110, 4,
     'The bVII chord (F here) sits one step below home instead of the usual half step. That gives the open, swaggering sound of classic rock.'),
   'rock-14b74': p('Rock four-flat-seven', ['I', 'IV', 'bVII', 'IV'], 'G', 'mixolydian', 115, 4,
