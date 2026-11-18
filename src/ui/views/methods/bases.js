@@ -8,12 +8,12 @@ import { baseFrom, basePicker, progRow, fromName, keyName, easyVoicing } from '.
 const symbolOf = (roman, tonic) => { try { return romanToChord(roman, tonic).symbol; } catch { return null; } };
 
 // Lets the person change the base from a short list of loops; calls draw(base) now and on each change.
-function withBase(params, maxLen, draw) {
+function withBase(sound, params, maxLen, draw) {
   let base = baseFrom(params);
   const mine = base;
   const loopIds = FAMOUS_LOOPS.filter((id) => PROGRESSIONS[id].romans.length <= maxLen);
   const body = h('div', { class: 'tool-body' });
-  const go = () => body.replaceChildren(...draw(base));
+  const go = () => { sound.stop(); body.replaceChildren(...draw(base)); };
   const picker = basePicker(mine, loopIds, (v) => {
     if (v === 'mine') base = mine;
     else { const e = PROGRESSIONS[v]; base = { romans: [...e.romans], tonic: e.tonic, mode: e.mode, name: e.name, fromQuery: false }; }
@@ -28,7 +28,7 @@ function withBase(params, maxLen, draw) {
 }
 
 export function rotateTool(ctx, sound, params) {
-  return withBase(params, 8, (base) => {
+  return withBase(sound, params, 8, (base) => {
     const { tonic, mode } = base;
     const key = keyName(tonic, mode);
     const rots = rotations(base.romans).slice(0, 8);
@@ -60,7 +60,7 @@ export function tensionTool(ctx, sound, params) {
     soft: 'The gentle “amen” sound, like the end of a hymn. It closes softly.',
     surprise: 'Heads toward home, then steps somewhere else. It feels unexpected.',
   };
-  return withBase(params, 8, (base) => {
+  return withBase(sound, params, 8, (base) => {
     const { tonic, mode } = base;
     const rows = [progRow(ctx, sound, {
       id: 'tension', tonic, mode, romans: base.romans, title: 'Without an ending', sub: 'Just the progression as it is.',
@@ -82,7 +82,7 @@ export function tensionTool(ctx, sound, params) {
 
 // Shared by borrow and spice: one result row on top, then per-chord choices. swaps[i] is a chord number or null.
 function swapTool(ctx, sound, params, id, { intro, choicesFor, chipText, empty }) {
-  return withBase(params, 8, (base) => {
+  return withBase(sound, params, 8, (base) => {
     const { tonic, mode } = base;
     const swaps = base.romans.map(() => null);
     const result = h('div', { class: 'result' });

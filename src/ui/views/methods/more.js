@@ -49,7 +49,7 @@ export function circleTool(ctx, sound) {
     const romans = circleChain(len, mode);
     body.replaceChildren(progRow(ctx, sound, {
       id: 'circle', tonic: key.tonic, mode, romans, title: `A chain of ${len} chords`,
-      sub: `Each chord sits one “fifth” (five steps up the scale) above the next, so they fall like dominoes and land on ${prettyChord(progressionChords(romans.slice(-1), key.tonic)[0].symbol)}, home.`,
+      sub: `Each chord’s root is a fifth above the next one’s (five notes up the scale, counting the first), so they fall like dominoes and land on ${prettyChord(progressionChords(romans.slice(-1), key.tonic)[0].symbol)}, home.${key.minor ? ' In a minor key, one link is a slightly smaller fifth, because that’s how the scale is built.' : ''}`,
     }));
   }
   slider.addEventListener('input', () => {

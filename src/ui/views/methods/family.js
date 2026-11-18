@@ -10,24 +10,34 @@ import { easyVoicing, fromName, keyName, keyPicker, openLink } from './shared.js
 
 const MAX = 8;
 
-// A plain mood word for a chord, by its number.
-const MOOD = {
+// A plain mood word for a chord, by its number. The same number can mean different things in a major or minor key.
+const MOOD_MAJOR = {
   i: 'a sudden shadow over home',
   iv: 'wistful, a little sad',
   bVI: 'big and heroic',
   bVII: 'open, with a rock swagger',
-  bIII: 'a warm, darker lift',
+  bIII: 'a darker, heroic lift',
   'ii°': 'tense, wants to move on',
   IV: 'a bright lift',
   V: 'a strong pull toward home',
-  I: 'a sunny turn',
   ii: 'gentle, wants to move on',
   iii: 'soft and dreamy',
   vi: 'a sad cousin of home',
   'vii°': 'tense, wants to resolve',
+};
+const MOOD_MINOR = {
+  i: 'home itself, settled and sad',
+  I: 'a sunny, hopeful turn away from the sadness',
+  iv: 'quiet and inward',
+  bIII: 'a warm, hopeful lift',
+  bVI: 'big and heroic',
+  bVII: 'open, with a rock swagger',
+  'ii°': 'tense, wants to move on',
+  IV: 'a bright lift',
+  V: 'a strong pull toward home',
   v: 'quiet, leans toward home',
 };
-const moodOf = (roman) => MOOD[roman] ?? FUNCTION_PLAIN[functionOf(roman)].split(':')[0];
+const moodOf = (roman, minor) => (minor ? MOOD_MINOR : MOOD_MAJOR)[roman] ?? FUNCTION_PLAIN[functionOf(roman)].split(':')[0];
 
 export function familyTool(ctx, sound, params) {
   let key = { tonic: 'C', minor: false };
@@ -113,7 +123,7 @@ export function familyTool(ctx, sound, params) {
         h('div', { class: 'try-text' },
           h('p', { class: 'try-name' }, h('span', { class: 'chord-name' }, prettyChord(symbol)), h('span', { class: 'chord-num' }, prettyRoman(it.roman)),
             isKnown(symbol, known()) ? h('span', { class: 'chord-tag known' }, 'you know this') : h('span', { class: 'chord-tag new' }, 'new')),
-          h('p', { class: 'try-mood' }, `${moodOf(it.roman).replace(/^./, (c) => c.toUpperCase())}.`),
+          h('p', { class: 'try-mood' }, `${moodOf(it.roman, key.minor).replace(/^./, (c) => c.toUpperCase())}.`),
           h('p', { class: 'row-sub' }, it.why),
           h('div', { class: 'row-actions' },
             sound.button({ voicings: [v], what: prettyChord(symbol) }),
