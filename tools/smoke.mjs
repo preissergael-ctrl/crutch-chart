@@ -18,6 +18,7 @@ export const ROUTES = [
   '#/chord/F',
   '#/chord/G%2FB',
   '#/chord/Bm7b5',
+  '#/chord/C',
   '#/chord/H',
 ];
 

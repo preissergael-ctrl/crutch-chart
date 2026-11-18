@@ -632,7 +632,8 @@ main {
 .chord-page .chord-notes { margin: 0; font-size: 17px; font-weight: 500; letter-spacing: 0.02em; }
 .chord-page .muted { color: var(--ink-soft); font-weight: 400; letter-spacing: 0; }
 .stepper { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-.shape-count { margin: 0; font: 600 17px/1.2 var(--serif); text-align: center; flex: 1; }
+.shape-count { margin: 0; font: 600 17px/1.25 var(--serif); text-align: center; flex: 1; }
+.shape-of { font: 400 13px var(--sans); color: var(--ink-soft); white-space: nowrap; }
 .button.step { min-width: 52px; padding: 0 12px; }
 .button.step:disabled { opacity: 0.35; cursor: default; }
 .shape-stage { user-select: none; -webkit-user-select: none; }

@@ -3,6 +3,7 @@
 import { parseChord, chordNotes, CHORD_TYPES } from '../../theory/chords.js';
 import { pc } from '../../theory/notes.js';
 import { generateVoicings } from '../../guitar/voicings.js';
+import { mainShapes, shapeName, shapeTag } from '../../guitar/shapes.js';
 import { isKnown } from '../../guitar/capo.js';
 import { STRUMS } from '../../content/patterns.js';
 import { routeHash } from '../router.js';
@@ -33,24 +34,28 @@ function noteName(chord, pcValue, notes) {
 function windowFor(v) {
   const nz = v.frets.filter((f) => f > 0);
   const lo = nz.length ? Math.min(...nz) : 1;
-  let from = v.frets.includes(0) ? 1 : Math.max(1, lo - 1);
+  const hi = nz.length ? Math.max(...nz) : 1;
+  let from = hi <= WINDOW ? 1 : Math.max(1, lo - 1);
   from = Math.min(from, 15 - WINDOW + 1);
-  return { from, to: from + WINDOW - 1 };
+  const to = from + WINDOW - 1;
+  // Guard: never clip a fretted note. If it does not fit, the caller shows the whole neck.
+  return lo >= from && hi <= to ? { from, to } : null;
 }
-
-const posLabel = (v) => (v.frets.includes(0) ? 'open' : String(v.baseFret));
 
 export const chordView = {
   render(params, ctx) {
     let chord;
-    let shapes;
+    let all;
     try {
       chord = parseChord(params.symbol);
-      shapes = generateVoicings(chord.symbol);
+      all = generateVoicings(chord.symbol);
     } catch {
       return unknown();
     }
-    if (!shapes || !shapes.length) return unknown();
+    if (!all || !all.length) return unknown();
+    const main = mainShapes(all);
+    let showAll = false;
+    let shapes = main;
 
     const symbol = chord.symbol;
     const shown = prettyChord(symbol);
@@ -64,18 +69,32 @@ export const chordView = {
       h('p', { class: 'lede' }, `${shown} is ${article(plain)} ${plain} chord${chord.bass ? `, played with ${prettyChord(chord.bass)} as the lowest note` : ''}.`),
       h('p', { class: 'chord-notes' }, h('span', { class: 'muted' }, 'Notes: '), notes.map(prettyChord).join('  ')));
 
-    const count = h('p', { class: 'shape-count', 'aria-live': 'polite' });
+    const shapeTitle = h('span', { class: 'shape-title' });
+    const shapeOf = h('span', { class: 'shape-of' });
+    const count = h('p', { class: 'shape-count', 'aria-live': 'polite' }, shapeTitle, ' ', shapeOf);
     const prev = h('button', { type: 'button', class: 'button ghost step', 'aria-label': 'Previous shape', onclick: () => go(idx - 1) }, icon('back'));
     const next = h('button', { type: 'button', class: 'button ghost step', 'aria-label': 'Next shape', onclick: () => go(idx + 1) }, icon('next'));
     const stepper = h('div', { class: 'stepper' }, prev, count, next);
 
-    const strip = h('div', { class: 'shape-strip', role: 'group', 'aria-label': 'All shapes, by position on the neck' },
-      shapes.map((v, i) => h('button', {
-        type: 'button', class: 'strip-btn',
-        'aria-label': `Shape ${i + 1}, ${v.frets.includes(0) ? 'open position' : `fret ${v.baseFret}`}`,
-        onclick: () => go(i),
-      }, posLabel(v))));
-    const stripBtns = [...strip.children];
+    const strip = h('div', { class: 'shape-strip', role: 'group', 'aria-label': 'Shapes, easiest first' });
+    let stripBtns = [];
+    const allToggle = h('button', { type: 'button', class: 'toggle', 'aria-pressed': 'false', onclick: () => {
+      showAll = !showAll;
+      shapes = showAll ? all : main;
+      idx = 0;
+      buildStrip();
+      draw();
+    } });
+    function buildStrip() {
+      stripBtns = shapes.map((v, i) => h('button', {
+        type: 'button', class: 'strip-btn', 'aria-label': `Shape ${i + 1}: ${shapeName(v)}`, onclick: () => go(i),
+      }, shapeTag(v)));
+      strip.replaceChildren(...stripBtns);
+      allToggle.setAttribute('aria-pressed', String(showAll));
+      allToggle.textContent = showAll ? 'Show main shapes only' : `Show all ${all.length} shapes`;
+      allToggle.hidden = all.length <= main.length;
+    }
+    buildStrip();
 
     const neckBox = h('div', { class: 'neck-box' });
     const zoom = h('button', { type: 'button', class: 'toggle', 'aria-pressed': 'false', onclick: () => { whole = !whole; draw(); } }, 'Show whole neck');
@@ -100,7 +119,8 @@ export const chordView = {
 
     function draw() {
       const v = shapes[idx];
-      count.textContent = `Shape ${idx + 1} of ${shapes.length}`;
+      shapeTitle.textContent = shapeName(v);
+      shapeOf.textContent = `${idx + 1} of ${shapes.length}`;
       prev.disabled = idx === 0;
       next.disabled = idx === shapes.length - 1;
       stripBtns.forEach((b, i) => {
@@ -110,21 +130,23 @@ export const chordView = {
       const b = stripBtns[idx];
       strip.scrollLeft = b.offsetLeft - (strip.clientWidth - b.offsetWidth) / 2;
 
+      const win = windowFor(v);
+      const wide = whole || !win;
       zoom.setAttribute('aria-pressed', String(whole));
       zoom.textContent = whole ? 'Show fewer frets' : 'Show whole neck';
-      stage.style.touchAction = whole ? '' : 'pan-y';
+      zoom.hidden = !win && !whole;
+      stage.style.touchAction = wide ? '' : 'pan-y';
       let svg;
-      if (whole) {
+      if (wide) {
         svg = renderNeck(v, { fromFret: 0, toFret: 15, name: shown });
         svg.setAttribute('width', String(Math.round(Number(svg.dataset.vbw) * WHOLE_SCALE)));
         neckBox.className = 'neck-box scroll';
       } else {
-        const w = windowFor(v);
-        svg = renderNeck(v, { fromFret: w.from, toFret: w.to, name: shown });
+        svg = renderNeck(v, { fromFret: win.from, toFret: win.to, name: shown });
         neckBox.className = 'neck-box';
       }
       neckBox.replaceChildren(svg);
-      if (whole) {
+      if (wide) {
         const nz = v.frets.filter((f) => f > 0);
         const lo = nz.length ? Math.min(...nz) : 1;
         neckBox.scrollLeft = Math.max(0, (lo - 1.5) * NECK_FRET_W * WHOLE_SCALE);
@@ -152,7 +174,7 @@ export const chordView = {
     let sx = 0;
     let sy = 0;
     let tracking = false;
-    stage.addEventListener('pointerdown', (e) => { if (!whole) { tracking = true; sx = e.clientX; sy = e.clientY; } });
+    stage.addEventListener('pointerdown', (e) => { if (!neckBox.classList.contains('scroll')) { tracking = true; sx = e.clientX; sy = e.clientY; } });
     stage.addEventListener('pointercancel', () => { tracking = false; });
     stage.addEventListener('pointerup', (e) => {
       if (!tracking) return;
@@ -172,7 +194,8 @@ export const chordView = {
       head, stepper, stage,
       h('div', { class: 'neck-actions' }, strum, zoom),
       noteLine, facts,
-      h('p', { class: 'muted strip-help' }, 'All shapes, easiest first, each labelled by where it sits. Tap one to jump to it.'), strip,
+      h('p', { class: 'muted strip-help' }, 'Main shapes, easiest first. Tap one to jump to it.'), strip,
+      h('div', { class: 'neck-actions' }, allToggle),
       h('p', { class: 'muted swipe-hint' }, 'Swipe the neck, or use the arrow keys, for the next shape.'));
     draw();
     return root;
