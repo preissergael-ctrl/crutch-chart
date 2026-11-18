@@ -102,3 +102,15 @@ test('import with mixed saved list keeps only valid entries', () => {
   assert.deepEqual(s.state.saved.map((p) => p.id), ['k']);
   assert.deepEqual(s.state.known, ['E']);
 });
+test('saved entries with bad chords or no name are dropped on load and import', () => {
+  const bad1 = { id: 'n', name: 'x', tonic: 'A', mode: 'aeolian', chords: [null] };
+  const bad2 = { id: 'm', tonic: 'A', mode: 'aeolian', chords: [{ name: 'Am', roman: 'i' }] };
+  const bad3 = { id: 'o', name: 'x', tonic: 'A', mode: 'aeolian', chords: [{ name: 'Am' }] };
+  const bad4 = { id: 'q', name: 'x', tonic: 'A', mode: 'aeolian', chords: [{ name: 5, roman: 'i' }] };
+  const ok = { id: 'k', name: 'fine', tonic: 'A', mode: 'aeolian', chords: [{ name: 'Am', roman: 'i' }] };
+  const state = { version: 1, known: [], saved: [bad1, bad2, bad3, bad4, ok], settings: {} };
+  assert.deepEqual(createStore(fake(JSON.stringify(state))).state.saved.map((p) => p.id), ['k']);
+  const s = createStore(fake());
+  s.importBackup(JSON.stringify({ app: 'crutch-chart', version: 1, state }));
+  assert.deepEqual(s.state.saved.map((p) => p.id), ['k']);
+});

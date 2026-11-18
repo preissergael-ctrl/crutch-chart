@@ -18,9 +18,11 @@ function valid(s) {
     Array.isArray(s.saved) && isObj(s.settings);
 }
 
+const validSavedChord = (c) => isObj(c) && typeof c.name === 'string' && typeof c.roman === 'string';
+
 function validSaved(p) {
-  return isObj(p) && typeof p.id === 'string' && typeof p.tonic === 'string' &&
-    typeof p.mode === 'string' && Array.isArray(p.chords);
+  return isObj(p) && typeof p.id === 'string' && typeof p.name === 'string' && typeof p.tonic === 'string' &&
+    typeof p.mode === 'string' && Array.isArray(p.chords) && p.chords.every(validSavedChord);
 }
 
 function normalize(s) {
