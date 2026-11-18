@@ -660,3 +660,73 @@ main {
 .shape-strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
 .strip-btn { flex: none; min-width: 44px; min-height: 40px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: 500 14px/1 var(--sans); cursor: pointer; }
 .strip-btn[aria-current="true"] { background: var(--pine); border-color: var(--pine); color: #fff; }
+
+/* ---------- Method tools ---------- */
+
+.learn-link { margin: 10px 0 0; font-size: 15px; }
+.learn-link a { color: var(--pine); font-weight: 500; }
+.tool .section-intro { margin: 14px 0 16px; }
+.tool .keybar { margin-bottom: 8px; }
+.select.wide { max-width: 100%; min-width: 0; flex: 1; }
+.button.small { min-height: 40px; padding: 0 16px; font-size: 14.5px; }
+.headline { margin: 18px 0 0; font: 600 21px/1.3 var(--serif); letter-spacing: -0.01em; max-width: 24em; }
+
+.tool-row { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.tool-row:first-of-type { border-top: 0; }
+.row-head { margin-bottom: 10px; }
+.row-title { font: 600 18px/1.3 var(--serif); margin: 0 0 2px; letter-spacing: -0.01em; }
+.row-sub { margin: 2px 0 10px; font-size: 14.5px; line-height: 1.45; color: var(--ink-soft); max-width: 36em; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.button.small.play-btn .icon { width: 16px; height: 16px; margin-right: 6px; }
+
+button.chord { font: inherit; cursor: pointer; width: 100%; }
+.chord-sub { font-size: 12.5px; font-weight: 500; color: var(--pine); line-height: 1.3; }
+.chord-tag.next { background: transparent; box-shadow: inset 0 0 0 1px var(--pine); color: var(--pine); margin-top: 0; white-space: normal; }
+
+.pick-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.pick-chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 12px 0 14px;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  font: 600 17px/1 var(--sans); color: var(--ink); cursor: pointer;
+}
+.pick-chip:hover { border-color: var(--pine); }
+.chip-x { color: var(--ink-soft); font-size: 19px; line-height: 1; }
+
+.try-list, .loop-list { display: grid; gap: 12px; }
+.try-card, .loop-card, .choice, .mode-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 16px;
+}
+.try-card { display: flex; gap: 14px; align-items: flex-start; }
+.try-diagram .mini { width: 62px; height: auto; background: var(--wood); border-radius: 3px; display: block; }
+.try-text { flex: 1; min-width: 0; }
+.try-name { margin: 0 0 4px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.try-name .chord-tag { margin: 0; }
+.try-mood { margin: 0 0 2px; font-weight: 500; font-size: 15.5px; }
+.try-card .row-actions { margin-top: 6px; }
+.try-card .row-sub { margin-bottom: 4px; }
+
+.loop-key { margin: 0 0 10px; font-size: 14px; color: var(--ink-soft); }
+.loop-card .prog-why { margin: 0; }
+.loop-card .prog-chords { margin-bottom: 8px; }
+.prog-chord.is-known { background: var(--pine-tint); box-shadow: inset 0 0 0 1px var(--line-strong); }
+
+.choices { display: grid; gap: 12px; margin-top: 26px; }
+.choice .row-title { margin-bottom: 8px; }
+.swap-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.swap {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; min-height: 44px;
+  padding: 8px 12px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  color: var(--ink); font-family: var(--sans); cursor: pointer;
+}
+.swap:hover { border-color: var(--pine); }
+.swap[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: #fff; }
+.swap-name { font-weight: 600; font-size: 17px; line-height: 1.2; }
+.swap-note { font-size: 13px; line-height: 1.3; opacity: 0.85; }
+.swap-note.warn { color: #8a4a2a; opacity: 1; }
+.swap[aria-pressed="true"] .swap-note, .swap[aria-pressed="true"] .swap-note.warn { color: #fff; }
+
+.mode-card { margin-top: 14px; }
+.mode-card .tool-row { margin-top: 12px; padding-top: 12px; }
+.mode-title { margin: 0 0 2px; font-size: 21px; }
+.mode-plain { margin: 0 0 6px; font-size: 15.5px; }
+.mode-card .row-sub strong { color: var(--ink); font-weight: 600; letter-spacing: 0.02em; }

@@ -20,6 +20,18 @@ export const ROUTES = [
   '#/chord/Bm7b5',
   '#/chord/C',
   '#/chord/H',
+  '#/method/family',
+  '#/method/loops',
+  '#/method/rotate',
+  '#/method/tension',
+  '#/method/circle',
+  '#/method/borrow',
+  '#/method/modes',
+  '#/method/spice',
+  '#/method/bass',
+  '#/method/rotate?t=A&m=aeolian&r=i,bVI,bIII,bVII',
+  '#/method/spice?t=C&m=nope&r=I',
+  '#/method/nope',
 ];
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
@@ -139,6 +151,11 @@ async function main() {
       const file = join(outDir, `${fileFor(route)}.png`);
       writeFileSync(file, Buffer.from(shot.data, 'base64'));
       console.log(`ok  ${route}  ->  ${file}`);
+
+      if (route === '#/method/family') {
+        const r = await send('Runtime.evaluate', { expression: 'document.body.innerText', returnByValue: true });
+        if (!r.result.value.includes('You already know 5 of the 7 chords in C major')) errors.push(`${route}: family headline is wrong`);
+      }
 
       // Playback check: press Play twice (the second press must restart cleanly), then a chord should light up.
       if (route.includes('id=axis')) {

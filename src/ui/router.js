@@ -1,5 +1,5 @@
 // Hash routes <-> view state. Pure: no DOM, safe to test in Node.
-//   #/find  #/mood/<id>  #/method/<id>  #/chord/<symbol>  #/learn  #/learn/<id>  #/saved  #/about
+//   #/find  #/mood/<id>  #/method/<id>[?t=&m=&r=]  #/chord/<symbol>  #/learn  #/learn/<id>  #/saved  #/about
 //   #/prog?t=<tonic>&m=<mode>&r=<romans,comma>&id=<progressionId>&src=<source>
 // Anything else gives { view: 'find', params: {} }.
 
@@ -44,6 +44,7 @@ export function parseRoute(hash) {
   const arg = rest.length ? dec(rest.join('/')) : '';
 
   if (PLAIN.includes(view) && !rest.length) return { view, params: {} };
+  if (view === 'method') return arg ? { view, params: { ...parseQuery(query), id: arg } } : HOME();
   if (WITH_ID.includes(view)) return arg ? { view, params: { id: arg } } : HOME();
   if (view === 'chord') return arg ? { view, params: { symbol: arg } } : HOME();
   if (view === 'learn') return { view, params: arg ? { id: arg } : {} };
@@ -51,19 +52,29 @@ export function parseRoute(hash) {
   return HOME();
 }
 
+function queryOf(params, order) {
+  const keys = [...order, ...Object.keys(params).filter((k) => !order.includes(k))];
+  const parts = [];
+  for (const k of keys) {
+    const v = params[k];
+    if (v === undefined || v === null) continue;
+    const val = k === 'r' ? (Array.isArray(v) ? v : String(v).split(',')).map(enc).join(',') : enc(v);
+    parts.push(`${enc(k)}=${val}`);
+  }
+  return parts.join('&');
+}
+
 export function routeHash(view, params = {}) {
+  if (view === 'method') {
+    const { id, ...rest } = params;
+    const q = queryOf(rest, PROG_ORDER);
+    return `#/method/${enc(id)}${q ? `?${q}` : ''}`;
+  }
   if (WITH_ID.includes(view) || (view === 'learn' && params.id)) return `#/${view}/${enc(params.id)}`;
   if (view === 'chord') return `#/chord/${encodeURIComponent(params.symbol)}`;
   if (view === 'prog') {
-    const keys = [...PROG_ORDER, ...Object.keys(params).filter((k) => !PROG_ORDER.includes(k))];
-    const parts = [];
-    for (const k of keys) {
-      const v = params[k];
-      if (v === undefined || v === null) continue;
-      const val = k === 'r' ? (Array.isArray(v) ? v : String(v).split(',')).map(enc).join(',') : enc(v);
-      parts.push(`${enc(k)}=${val}`);
-    }
-    return parts.length ? `#/prog?${parts.join('&')}` : '#/prog';
+    const q = queryOf(params, PROG_ORDER);
+    return q ? `#/prog?${q}` : '#/prog';
   }
   if (view === 'learn' || PLAIN.includes(view)) return `#/${view}`;
   return '#/find';

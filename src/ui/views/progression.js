@@ -28,7 +28,7 @@ function broken() {
     h('p', {}, h('a', { class: 'button', href: routeHash('find') }, 'Back to Find')));
 }
 
-function valid(params) {
+export function valid(params) {
   const { t, m, r } = params;
   if (typeof t !== 'string' || typeof m !== 'string' || !Array.isArray(r)) return false;
   if (!r.length || r.length > MAX_CHORDS || !Object.hasOwn(MODES, m)) return false;

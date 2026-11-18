@@ -9,6 +9,7 @@ import { h } from './dom.js';
 import { findView, moodView } from './views/find.js';
 import { progressionView } from './views/progression.js';
 import { chordView } from './views/chord.js';
+import { methodView } from './views/method.js';
 
 // Screens that later tasks build. Until then they show a calm placeholder.
 const comingSoon = {
@@ -23,7 +24,7 @@ const comingSoon = {
 const VIEWS = {
   find: findView,
   mood: moodView,
-  method: comingSoon,
+  method: methodView,
   prog: progressionView,
   chord: chordView,
   learn: comingSoon,
