@@ -198,6 +198,8 @@ async function main() {
         if (dup !== 'Already on your list.') errors.push(`${route}: duplicate message was "${dup}"`);
         const good = await add('Em');
         if (!good.startsWith('Added')) errors.push(`${route}: adding Em said "${good}"`);
+        const uni = await add('f♯m');
+        if (uni !== 'Added F♯m.') errors.push(`${route}: typing f♯m said "${uni}"`);
         const opens = await send('Runtime.evaluate', { expression: "document.querySelector('.saved-row .button')?.getAttribute('href')", returnByValue: true });
         if (!String(opens.result.value).includes('bpm=70')) errors.push(`${route}: Open link lacks saved settings (${opens.result.value})`);
         if (errors.length === 0 || !errors.some((e) => e.startsWith(route))) console.log(`ok  ${route}  my chords validate, add, and the Open link carries saved settings`);

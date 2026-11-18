@@ -71,3 +71,12 @@ test('sameChord distinguishes bass and quality', () => {
   assert.equal(sameChord('C', 'C/E'), false);
   assert.equal(sameChord('C', 'Cm'), false);
 });
+
+import { normalizeChordInput } from '../src/theory/chords.js';
+test('normalizeChordInput cleans typed chords', () => {
+  assert.equal(parseChord(normalizeChordInput('f♯m')).symbol, 'F#m');
+  assert.equal(parseChord(normalizeChordInput('B♭7')).symbol, 'Bb7');
+  assert.equal(parseChord(normalizeChordInput(' am ')).symbol, 'Am');
+  assert.equal(parseChord(normalizeChordInput('cmaj7')).symbol, 'Cmaj7');
+  assert.throws(() => parseChord(normalizeChordInput('Hm')));
+});

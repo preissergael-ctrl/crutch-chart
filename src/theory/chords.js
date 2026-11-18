@@ -56,3 +56,10 @@ export function sameChord(a, b) {
   return pc(x.root) === pc(y.root) && x.quality === y.quality &&
     (x.bass ? pc(x.bass) : null) === (y.bass ? pc(y.bass) : null);
 }
+
+// Cleans what a person typed so parseChord can read it: trims, turns ♯/♭ into # and b,
+// and capitalises the first letter. The rest stays as typed ('maj7', 'm').
+export function normalizeChordInput(str) {
+  const s = String(str).trim().replace(/[♯＃]/g, '#').replace(/[♭]/g, 'b');
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}

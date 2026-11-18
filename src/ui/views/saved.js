@@ -1,5 +1,5 @@
 // Saved: your saved progressions, "My chords", and backup. Also links to About.
-import { parseChord } from '../../theory/chords.js';
+import { parseChord, normalizeChordInput } from '../../theory/chords.js';
 import { isKnown } from '../../guitar/capo.js';
 import { routeHash } from '../router.js';
 import { h, icon, prettyChord } from '../dom.js';
@@ -84,7 +84,7 @@ export const savedView = {
         const raw = input.value.trim();
         if (!raw) return;
         let chord;
-        try { chord = parseChord(raw); } catch {
+        try { chord = parseChord(normalizeChordInput(raw)); } catch {
           msg.textContent = `I don’t know the chord “${raw}”. Try names like Am, F♯m or B♭7.`;
           return;
         }
