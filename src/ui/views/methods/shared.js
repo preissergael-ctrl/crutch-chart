@@ -2,7 +2,7 @@
 import { PROGRESSIONS } from '../../../content/progressions.js';
 import { STRUMS } from '../../../content/patterns.js';
 import { progressionChords, KEYS, isMinorMode } from '../../../theory/roman.js';
-import { MODE_INFO } from '../../../theory/scales.js';
+import { modeName } from '../../../theory/scales.js';
 import { generateVoicings } from '../../../guitar/voicings.js';
 import { isKnown } from '../../../guitar/capo.js';
 import { routeHash } from '../../router.js';
@@ -37,11 +37,8 @@ export function resolve(romans, tonic) {
 
 export const keyName = (tonic, mode) => `${prettyChord(tonic)} ${isMinorMode(mode) ? 'minor' : 'major'}`;
 
-// "C minor", "C dorian"
-export function fromName(tonic, mode) {
-  const name = mode === 'aeolian' ? 'minor' : mode === 'ionian' ? 'major' : (MODE_INFO[mode]?.name ?? mode).toLowerCase();
-  return `${prettyChord(tonic)} ${name}`;
-}
+// "C minor", "C Dorian", "A harmonic minor"
+export const fromName = (tonic, mode) => `${prettyChord(tonic)} ${modeName(mode)}`;
 
 export function openLink(methodId, tonic, mode, romans, label = 'Open this progression') {
   return h('a', { class: 'button ghost small', href: routeHash('prog', { t: tonic, m: mode, r: romans, src: `method:${methodId}` }) }, label);

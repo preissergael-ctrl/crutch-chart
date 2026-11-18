@@ -20,7 +20,7 @@ export function renderPatternStrip(pattern, kind) {
       h('span', { 'aria-hidden': 'true' }, cellText(step, kind))));
   const legend = kind === 'strum'
     ? '↓ down strum, ↑ up strum, × muted hit, · rest.'
-    : 'B is the lowest string and A the next one up. 1 is the highest string, 2 and 3 the next two down. + means together.';
+    : 'B is the lowest string the chord shape plays, and A the next one up. 1 is the highest string it plays, 2 and 3 the next two down. + means together.';
   const el = h('div', { class: 'pattern' },
     h('ol', { class: `pstrip grid-${pattern.grid}`, 'aria-label': `${pattern.name} pattern` }, cells),
     h('p', { class: 'pattern-legend' }, legend));

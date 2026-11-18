@@ -61,8 +61,8 @@ export function familyTool(ctx, sound, params) {
     const next = last ? nextHints(last, mode()) : [];
     const row = renderChordRow(f.map((x) => ({
       symbol: x.chord.symbol, roman: x.roman, known: isKnown(x.chord.symbol, known()), voicing: easyVoicing(x.chord.symbol),
-      mark: next.includes(x.roman) ? 'usually comes next' : null,
-      label: `Add ${prettyChord(x.chord.symbol)}. ${isKnown(x.chord.symbol, known()) ? 'You know this chord' : 'New chord'}${next.includes(x.roman) ? ', usually comes next' : ''}`,
+      mark: next.includes(x.roman) ? 'often comes next' : null,
+      label: `Add ${prettyChord(x.chord.symbol)}. ${isKnown(x.chord.symbol, known()) ? 'You know this chord' : 'New chord'}${next.includes(x.roman) ? ', often comes next' : ''}`,
       onPick: () => {
         if (picks.length >= MAX) return;
         picks = [...picks, x.roman];
@@ -106,7 +106,7 @@ export function familyTool(ctx, sound, params) {
       for (const o of borrowOptions(x.roman, mode())) {
         if (seen.has(o.roman)) continue;
         seen.add(o.roman);
-        items.push({ roman: o.roman, why: `Borrowed from ${fromName(key.tonic, o.from)}`, borrowed: true });
+        items.push({ roman: o.roman, why: `Borrowed from ${fromName(key.tonic, o.from)} (same home note)`, borrowed: true });
       }
     }
     for (const x of f) {
@@ -143,7 +143,7 @@ export function familyTool(ctx, sound, params) {
   return h('div', { class: 'tool' },
     picker,
     headline,
-    h('p', { class: 'section-intro' }, 'These seven chords belong together. Tap them to build a progression (up to 8). After each tap, the chords that usually come next are marked.'),
+    h('p', { class: 'section-intro' }, 'These seven chords belong together. Tap them to build a progression (up to 8). After each tap, the chords that often come next are marked.'),
     tileBox,
     h('section', { class: 'section', 'aria-labelledby': 'built-title' },
       h('h2', { id: 'built-title' }, 'Your progression'), built),

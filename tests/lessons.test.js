@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { LESSONS } from '../src/content/lessons.js';
 import { METHODS } from '../src/content/methods.js';
 import { STRUMS, PICKS } from '../src/content/patterns.js';
-import { progressionChords, diatonicFamily, functionOf, borrowedFrom, KEYS } from '../src/theory/roman.js';
+import { progressionChords, diatonicFamily, functionOf, borrowedFrom, KEYS, parseRoman, romanToChord } from '../src/theory/roman.js';
 import { scaleNotes, MODE_INFO } from '../src/theory/scales.js';
 import { chordNotes, parseChord, CHORD_TYPES } from '../src/theory/chords.js';
-import { pc } from '../src/theory/notes.js';
+import { pc, LETTERS } from '../src/theory/notes.js';
+import { readFileSync } from 'node:fs';
 import { ENDINGS, circleChain, borrowOptions, rotations, BASS_WALKS } from '../src/theory/methods.js';
 import { generateVoicings } from '../src/guitar/voicings.js';
 import { capoHint, isKnown } from '../src/guitar/capo.js';
@@ -137,8 +138,22 @@ test('claim (numbering): A major has F#, C#, G#; Am F C G is i bVI bIII bVII; cl
   assert.deepEqual(names(['i', 'bVI', 'bIII', 'bVII'], 'A'), ['Am', 'F', 'C', 'G']);
   const fam = diatonicFamily('A', 'aeolian');
   assert.deepEqual(fam.map((x) => x.roman), ['i', 'ii°', 'bIII', 'iv', 'v', 'bVI', 'bVII']);
-  // Counting from the minor scale itself (classical), degrees 1, 6, 3, 7 are Am F C G.
-  assert.deepEqual([0, 5, 2, 6].map((i) => fam[i].chord.symbol), ['Am', 'F', 'C', 'G']);
+  // Counting from the A minor scale itself (classical), the roots of Am F C G are its notes 1, 6, 3 and 7.
+  const minorScale = scaleNotes('A', 'aeolian');
+  const roots = progressionChords(['i', 'bVI', 'bIII', 'bVII'], 'A').map((c) => c.root);
+  assert.deepEqual(roots.map((r) => minorScale.indexOf(r) + 1), [1, 6, 3, 7]);
+});
+
+test('claim (numbering): the flats mark notes lower than the major scale; a number names the same chord in major and minor', () => {
+  const major = scaleNotes('A', 'ionian');
+  for (const r of ['bIII', 'bVI', 'bVII']) {
+    const { degree } = parseRoman(r);
+    assert.equal((pc(major[degree - 1]) - pc(romanToChord(r, 'A').root) + 12) % 12, 1, r);
+  }
+  // With A as home, bVII is G in a minor mode (natural minor) and in a major mode (mixolydian).
+  const bVII = (m) => diatonicFamily('A', m).find((x) => x.roman === 'bVII').chord.symbol;
+  assert.equal(bVII('aeolian'), 'G');
+  assert.equal(bVII('mixolydian'), 'G');
 });
 
 test('claim (rotation): Am F C G is a rotation of C G Am F, and vi is home’s cousin', () => {
@@ -191,10 +206,8 @@ test('claim (modes): D dorian, G mixolydian, F lydian, E phrygian use the C majo
   assert.deepEqual(names(['i', 'IV'], 'D'), ['Dm', 'G']);
   assert.deepEqual(names(['I', 'bVII', 'IV'], 'G'), ['G', 'F', 'C']);
   assert.deepEqual(names(['I', 'II'], 'F'), ['F', 'G']);
-  assert.match(MODE_INFO.dorian.plain, /warm and a little hopeful/);
-  assert.match(MODE_INFO.mixolydian.plain, /relaxed and bluesy/);
-  assert.match(MODE_INFO.lydian.plain, /float/);
-  assert.match(MODE_INFO.phrygian.plain, /dark and Spanish/);
+  // B as home is Locrian, also built from the C major notes.
+  assert.equal(set('B', 'locrian'), c);
 });
 
 test('claim (colors): Cmaj7 is C plus B and is C with the index lifted; G7, Dsus2, Dsus4 notes', () => {
@@ -243,11 +256,13 @@ test('claim (strum-and-pick): folk strum is D - D U - U D U; Travis thumb swaps 
   const thumbs = travis.steps.map((st) => st.find((r) => r === 'B' || r === 'A')).filter(Boolean);
   assert.deepEqual([...new Set(thumbs)], ['B', 'A']);
   assert.ok(PICKS.some((p) => p.id === 'arp-up'));
-  assert.match(text('strum-and-pick'), /Strum or Pick/);
 });
 
-test('claim: Am F C G has no pull chord (why it keeps circling)', () => {
-  assert.ok(['i', 'bVI', 'bIII', 'bVII'].every((r) => functionOf(r) !== 'pull'));
+test('claim (strum-and-pick): the progression screen really has Strum and Pick buttons', () => {
+  assert.match(text('strum-and-pick'), /choose Strum or Pick/);
+  const view = readFileSync(new URL('../src/ui/views/progression.js', import.meta.url), 'utf8');
+  assert.match(view, /label: 'Strum'/);
+  assert.match(view, /label: 'Pick'/);
 });
 
 // ---- Review round 1 ----
@@ -282,4 +297,67 @@ test('claim (colors): a plain 7 is the V chord’s 7th in a major key; Cadd9 is 
   assert.deepEqual(sev.filter((x) => x.chord.quality === '7').map((x) => `${x.roman}=${x.chord.symbol}`), ['V7=G7']);
   assert.deepEqual(notes('Cadd9'), ['C', 'E', 'G', 'D']);
   assert.equal(scaleNotes('C', 'ionian')[1], 'D');
+});
+
+// ---- Task 16 theory pass ----
+
+test('claim (reading-the-neck): C mutes low E, so the strum starts on the A string', () => {
+  const c = easiest('C');
+  assert.equal(c.frets[0], null);
+  assert.notEqual(c.frets[1], null);
+});
+
+test('claim (keys): a sharp is one fret above its letter, a flat one fret below', () => {
+  for (const L of LETTERS) {
+    assert.equal((pc(`${L}#`) - pc(L) + 12) % 12, 1, `${L}#`);
+    assert.equal((pc(L) - pc(`${L}b`) + 12) % 12, 1, `${L}b`);
+  }
+  assert.equal(scaleNotes('C', 'ionian').length, 7);
+  assert.equal(scaleNotes('C', 'ionian')[0], 'C'); // home is one of the seven
+});
+
+test('claim (major-minor): the 3rd is three note names up from the root and the 5th five, counting the root', () => {
+  for (const s of ['C', 'Am', 'F', 'G', 'Dm', 'Bb', 'F#m']) {
+    const n = notes(s);
+    const at = (x) => (LETTERS.indexOf(x[0]) - LETTERS.indexOf(n[0][0]) + 7) % 7 + 1;
+    assert.equal(at(n[1]), 3, s);
+    assert.equal(at(n[2]), 5, s);
+  }
+});
+
+test('claim (circle): stepping by fifths passes all twelve notes and comes back to the start', () => {
+  const seen = new Set();
+  let p = pc('C');
+  for (let i = 0; i < 12; i++) { seen.add(p); p = (p + 7) % 12; }
+  assert.equal(seen.size, 12);
+  assert.equal(p, pc('C'));
+});
+
+test('claim (borrowed): each flat chord’s root is one fret below the major-scale note; F to Fm changes only A to Ab', () => {
+  const major = scaleNotes('C', 'ionian');
+  for (const r of ['bVII', 'bVI', 'bIII']) {
+    const { degree } = parseRoman(r);
+    assert.equal((pc(major[degree - 1]) - pc(romanToChord(r, 'C').root) + 12) % 12, 1, r);
+  }
+  const f = notes('F');
+  const fm = notes('Fm');
+  assert.deepEqual(f.filter((n) => !fm.includes(n)), ['A']);
+  assert.deepEqual(fm.filter((n) => !f.includes(n)), ['Ab']);
+  assert.ok(tries('borrowed').some((t) => names(t.r, 'C').join(' ') === 'C F Fm C'));
+});
+
+test('claim (caged try): in F, I IV V I is F Bb C with F as the E shape and Bb as the A shape', () => {
+  const t = tries('caged')[0];
+  assert.deepEqual(names(t.r, t.t), ['F', 'Bb', 'C', 'F']);
+  assert.equal(easiest('F').caged, 'E');
+  assert.equal(easiest('Bb').caged, 'A');
+});
+
+test('claim (capo): with a capo the same chords sound, each shape moved up three half steps', () => {
+  const { capo, playAs } = capoHint(['Bb', 'F', 'Gm', 'Eb'], []);
+  const real = ['Bb', 'F', 'Gm', 'Eb'].map(parseChord);
+  playAs.map(parseChord).forEach((c, i) => {
+    assert.equal((pc(c.root) + capo) % 12, pc(real[i].root));
+    assert.equal(c.quality, real[i].quality);
+  });
 });

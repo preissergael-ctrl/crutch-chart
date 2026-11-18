@@ -7,7 +7,7 @@ import { renderMiniDiagram } from './neck.js';
 // items: [{ symbol, roman, known, voicing, onPick?, label?, mark?, sub? }]
 //   onPick: make the tile a button that calls this instead of a link to the chord page
 //   label:  spoken label for a button tile
-//   mark:   an extra small pill under the known/new tag (e.g. "usually comes next")
+//   mark:   an extra small pill under the known/new tag (e.g. "often comes next")
 //   sub:    an extra small line under the number (e.g. "bass: B")
 export function renderChordRow(items, { label = 'Chords in order' } = {}) {
   const tiles = items.map((it) => {

@@ -14,7 +14,7 @@ export const FUNCTION_PLAIN = {
   home: 'home: where the music rests',
   relative: 'a cousin of home: restful, but a different color',
   away: 'away: leaves home and builds interest',
-  pull: 'pull: leans hard back toward home',
+  pull: 'pull: leans back toward home',
 };
 
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];

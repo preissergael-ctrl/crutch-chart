@@ -4,7 +4,7 @@ import { MOODS } from '../../content/moods.js';
 import { STRUMS, PICKS } from '../../content/patterns.js';
 import { LESSONS } from '../../content/lessons.js';
 import { progressionChords, explainProgression, parseRoman, KEYS, isMinorMode } from '../../theory/roman.js';
-import { MODES, MODE_INFO } from '../../theory/scales.js';
+import { MODES, MODE_INFO, modeName } from '../../theory/scales.js';
 import { pc } from '../../theory/notes.js';
 import { generateVoicings } from '../../guitar/voicings.js';
 import { capoHint, isKnown } from '../../guitar/capo.js';
@@ -243,7 +243,7 @@ export const progressionView = {
 
     // ---- Why it works ----
     const whyLines = info.map((x) => {
-      const b = x.borrowed ? `borrowed from ${prettyChord(tonic)} ${MODE_INFO[x.borrowed]?.name ?? x.borrowed}` : null;
+      const b = x.borrowed ? `borrowed from ${prettyChord(tonic)} ${modeName(x.borrowed)} (same home note)` : null;
       return h('li', {},
         h('span', { class: 'why-head' },
           h('span', { class: 'why-chord' }, prettyChord(x.name)),
@@ -257,7 +257,7 @@ export const progressionView = {
     const capoCard = hint
       ? h('section', { class: 'capo', 'aria-labelledby': 'capo-title' },
         h('h2', { id: 'capo-title' }, 'Easier with a capo'),
-        h('p', {}, `Put a capo (a clamp that raises every string) on fret ${hint.capo} and play ${hint.playAs.map(prettyChord).join(' ')}. It sounds the same as ${symbols.map(prettyChord).join(' ')}, with easier shapes.`))
+        h('p', {}, `Put a capo (a clamp that raises every string) on fret ${hint.capo} and play ${hint.playAs.map(prettyChord).join(' ')}. You hear the same chords, ${symbols.map(prettyChord).join(' ')}, with easier shapes.`))
       : null;
 
     // ---- Save ----

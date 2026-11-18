@@ -1,6 +1,7 @@
 // Saved: your saved progressions, "My chords", and backup. Also links to About.
 import { parseChord, normalizeChordInput } from '../../theory/chords.js';
 import { isKnown } from '../../guitar/capo.js';
+import { modeName } from '../../theory/scales.js';
 import { routeHash } from '../router.js';
 import { h, icon, prettyChord } from '../dom.js';
 
@@ -20,8 +21,7 @@ function openHash(p) {
 }
 
 function keyText(p) {
-  const mode = p.mode === 'ionian' ? ' major' : p.mode === 'aeolian' ? ' minor' : ` (${p.mode})`;
-  return `Key of ${prettyChord(p.tonic)}${mode} · ${p.bpm} beats per minute`;
+  return `Key of ${prettyChord(p.tonic)} ${modeName(p.mode)} · ${p.bpm} beats per minute`;
 }
 
 export const savedView = {

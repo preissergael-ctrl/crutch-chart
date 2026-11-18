@@ -80,3 +80,40 @@ test('normalizeChordInput cleans typed chords', () => {
   assert.equal(parseChord(normalizeChordInput('cmaj7')).symbol, 'Cmaj7');
   assert.throws(() => parseChord(normalizeChordInput('Hm')));
 });
+
+// ---- Task 16: plain meaning of each chord type, built from the chord's own notes ----
+import { explainType, CHORD_FEEL } from '../src/theory/chords.js';
+
+test('explainType: added notes and swapped notes', () => {
+  const e = (s) => explainType(parseChord(s));
+  assert.deepEqual(e('G7'), { base: 'G', added: ['F'], swap: null, feel: CHORD_FEEL['7'] });
+  assert.deepEqual(e('Cmaj7').added, ['B']);
+  assert.deepEqual(e('Am7'), { base: 'Am', added: ['G'], swap: null, feel: CHORD_FEEL.m7 });
+  assert.deepEqual(e('Bm7b5').base, 'Bdim');
+  assert.deepEqual(e('Bm7b5').added, ['A']);
+  assert.deepEqual(e('Cadd9').added, ['D']);
+  assert.deepEqual(e('G9').added, ['F', 'A']);
+  assert.deepEqual(e('Dsus2').swap, { from: 'F#', to: 'E' });
+  assert.deepEqual(e('Dsus4').swap, { from: 'F#', to: 'G' });
+  assert.deepEqual(e('Cdim'), { base: 'Cm', added: [], swap: { from: 'G', to: 'Gb' }, feel: CHORD_FEEL.dim });
+  assert.deepEqual(e('Caug').swap, { from: 'G', to: 'G#' });
+  assert.equal(e('C').base, null);
+  assert.equal(e('Am').base, null);
+});
+
+test('explainType: every type on every root explains itself, and the notes add up', () => {
+  const roots = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  for (const q of Object.keys(CHORD_TYPES)) {
+    assert.ok(CHORD_FEEL[q], `feel for ${q}`);
+    for (const r of roots) {
+      const ch = parseChord(r + q);
+      const x = explainType(ch);
+      if (!x.base) continue;
+      const own = chordNotes(ch).map(pc).sort();
+      let built = chordNotes(parseChord(x.base)).map(pc);
+      if (x.swap) built = built.map((p) => (p === pc(x.swap.from) ? pc(x.swap.to) : p));
+      built = [...built, ...x.added.map(pc)].sort();
+      assert.deepEqual(built, own, r + q);
+    }
+  }
+});

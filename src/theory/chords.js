@@ -63,3 +63,34 @@ export function normalizeChordInput(str) {
   const s = String(str).trim().replace(/[♯＃]/g, '#').replace(/[♭]/g, 'b');
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
+
+// What a chord type is, in plain words, built from the chord's own notes.
+//   added: notes stacked on a plain chord (G7 = a G chord with F added)
+//   swap:  one note of a plain chord replaced (Dsus2 = a D chord with E in place of F#)
+// base is the plain chord it starts from, or null for plain major and minor.
+const BUILT_FROM = {
+  7: ['', 'add'], maj7: ['', 'add'], add9: ['', 'add'], 6: ['', 'add'], 9: ['', 'add'],
+  m7: ['m', 'add'], m6: ['m', 'add'], m7b5: ['dim', 'add'],
+  dim: ['m', 'swap'], aug: ['', 'swap'], sus2: ['', 'swap'], sus4: ['', 'swap'],
+};
+export const CHORD_FEEL = {
+  '': 'bright and settled', m: 'softer and a little sad', dim: 'tense and restless', aug: 'tense and dreamy',
+  7: 'bluesy, and it wants to move', maj7: 'soft and dreamy', m7: 'mellow and smooth', m7b5: 'dark and jazzy',
+  sus2: 'open and airy', sus4: 'hanging, waiting to settle', add9: 'bright and shimmery',
+  6: 'warm and old-fashioned', m6: 'bittersweet and jazzy', 9: 'rich and funky',
+};
+
+export function explainType(chord) {
+  const feel = CHORD_FEEL[chord.quality];
+  const how = BUILT_FROM[chord.quality];
+  if (!how) return { base: null, added: [], swap: null, feel };
+  const base = makeChord(chord.root, how[0]);
+  const own = chordNotes(makeChord(chord.root, chord.quality));
+  const plain = chordNotes(base);
+  const ownPcs = own.map(pc);
+  const plainPcs = plain.map(pc);
+  const extra = own.filter((n) => !plainPcs.includes(pc(n)));
+  if (how[1] === 'add') return { base: base.symbol, added: extra, swap: null, feel };
+  const gone = plain.find((n) => !ownPcs.includes(pc(n)));
+  return { base: base.symbol, added: [], swap: { from: gone, to: extra[0] }, feel };
+}

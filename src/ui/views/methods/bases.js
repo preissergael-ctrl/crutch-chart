@@ -124,7 +124,7 @@ function swapTool(ctx, sound, params, id, { intro, choicesFor, chipText, empty }
 
 export function borrowTool(ctx, sound, params) {
   return swapTool(ctx, sound, params, 'borrow', {
-    intro: (key) => `Each chord in ${key} has a cousin in a neighboring scale. Swap one in and hear the surprise. Tap it again to undo.`,
+    intro: (key) => `Swap a chord in ${key} for one borrowed from a scale with the same home note. Hear the surprise, and tap it again to undo.`,
     choicesFor: (roman, tonic, mode) => borrowOptions(roman, mode),
     chipText: (o, tonic) => [`from ${fromName(tonic, o.from)}`],
     empty: 'No swap for this chord.',

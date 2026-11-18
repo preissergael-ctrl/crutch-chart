@@ -91,7 +91,7 @@ export function modesTool(ctx, sound) {
       progRow(ctx, sound, { id: 'modes', tonic: e.tonic, mode: e.mode, romans: e.romans, title: e.name, sub: 'A progression that shows off this mode.' }));
   });
   return h('div', { class: 'tool' },
-    h('p', { class: 'section-intro' }, 'Same seven notes, a different home. Each mode has its own color. Play each example and listen.'),
+    h('p', { class: 'section-intro' }, 'Next to plain major or minor on the same home note, most modes move just one note, named on each card. Play each example and listen.'),
     ...sections);
 }
 

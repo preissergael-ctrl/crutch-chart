@@ -84,3 +84,102 @@ test('methods', () => {
   for (const m of METHODS) assert.ok(m.name && m.summary && m.lessonId, m.id);
   assert.deepEqual(METHODS.map((m) => m.lessonId), ['chord-family', 'chord-numbers', 'rotation', 'endings', 'circle', 'borrowed', 'modes', 'colors', 'slash-chords']);
 });
+
+// ---- Task 16 theory pass: claims in the `why` texts, checked against the engine ----
+import { functionOf, romanToChord } from '../src/theory/roman.js';
+import { scaleNotes } from '../src/theory/scales.js';
+import { chordNotes, parseChord } from '../src/theory/chords.js';
+import { pc, LETTERS } from '../src/theory/notes.js';
+import { borrowOptions } from '../src/theory/methods.js';
+
+const chordsOf = (id) => { const p = PROGRESSIONS[id]; return progressionChords(p.romans, p.tonic); };
+const down = (a, b) => (pc(a) - pc(b) + 12) % 12; // half steps from b up to a
+
+test('why (sad-aeolian): Am F C G has no pull chord, so it keeps circling', () => {
+  assert.ok(PROGRESSIONS['sad-aeolian'].romans.every((r) => functionOf(r) !== 'pull'));
+});
+
+test('why (pachelbel): the first three pairs start lower each time (C, Am, F); the last pair is F then G', () => {
+  const c = chordsOf('pachelbel').map((x) => x.symbol);
+  const starts = [0, 2, 4].map((i) => c[i]);
+  assert.deepEqual(starts, ['C', 'Am', 'F']);
+  // Each start is a short step below the one before: C down 3 half steps to A, A down 4 to F.
+  const roots = [0, 2, 4].map((i) => chordsOf('pachelbel')[i].root);
+  assert.equal(down(roots[0], roots[1]), 3);
+  assert.equal(down(roots[1], roots[2]), 4);
+  assert.deepEqual(c.slice(6), ['F', 'G']);
+});
+
+test('why (sad-1415): iv and v are the minor chords on the 4th and 5th notes, Dm and Em', () => {
+  const scale = scaleNotes('A', 'aeolian');
+  const [, iv, , v] = chordsOf('sad-1415');
+  assert.deepEqual([iv.symbol, v.symbol], ['Dm', 'Em']);
+  assert.equal(iv.root, scale[3]);
+  assert.equal(v.root, scale[4]);
+});
+
+test('why (fifties): IV steps away and only V pulls home', () => {
+  assert.equal(functionOf('IV'), 'away');
+  assert.equal(functionOf('V'), 'pull');
+  assert.equal(functionOf('vi'), 'relative');
+});
+
+test('why (lydian-12): D holds F#, which C major lacks; it is the 4th note raised one fret', () => {
+  assert.ok(chordNotes(parseChord('D')).includes('F#'));
+  assert.ok(!scaleNotes('C', 'ionian').includes('F#'));
+  assert.equal(scaleNotes('C', 'lydian')[3], 'F#');
+  assert.equal(down('F#', scaleNotes('C', 'ionian')[3]), 1);
+});
+
+test('why (dorian-vamp): the major IV (D) holds F#, the Dorian 6th, one fret above plain minor’s F', () => {
+  assert.equal(chordsOf('dorian-vamp')[1].root, 'D');
+  assert.equal(scaleNotes('A', 'dorian')[5], 'F#');
+  assert.equal(scaleNotes('A', 'aeolian')[5], 'F');
+  assert.ok(chordNotes(parseChord('D7')).includes('F#'));
+});
+
+test('why (two-five-one): each root falls a fifth, five note names counting both ends', () => {
+  const roots = chordsOf('two-five-one').map((c) => c.root);
+  assert.deepEqual(roots, ['D', 'G', 'C']);
+  for (let i = 0; i < 2; i++) {
+    const names = (LETTERS.indexOf(roots[i]) - LETTERS.indexOf(roots[i + 1]) + 7) % 7 + 1;
+    assert.equal(names, 5, `${roots[i]} to ${roots[i + 1]}`);
+    assert.equal(down(roots[i], roots[i + 1]), 7);
+  }
+});
+
+test('why (twelve-bar): three chords, all seven chords (a major chord plus one note)', () => {
+  const c = chordsOf('twelve-bar');
+  assert.equal(new Set(c.map((x) => x.symbol)).size, 3);
+  for (const x of c) {
+    assert.equal(x.quality, '7');
+    const major = chordNotes(parseChord(x.root));
+    assert.deepEqual(chordNotes(x).slice(0, 3), major);
+  }
+});
+
+test('why (mixo-rock): F is two frets below G; plain G major has F#, one fret below', () => {
+  assert.equal(romanToChord('bVII', 'G').root, 'F');
+  assert.equal(down('G', 'F'), 2);
+  assert.equal(scaleNotes('G', 'mixolydian')[6], 'F');
+  assert.equal(scaleNotes('G', 'ionian')[6], 'F#');
+  assert.equal(down('G', 'F#'), 1);
+});
+
+test('why (spanish-phrygian): Bb is one fret above A', () => {
+  assert.equal(romanToChord('bII', 'A').root, 'Bb');
+  assert.equal(down('Bb', 'A'), 1);
+});
+
+test('why (mario, harmonic): borrowed from the home note’s minor; harmonic minor’s E holds G#', () => {
+  const cMinor = scaleNotes('C', 'aeolian');
+  for (const r of ['bVI', 'bVII']) assert.ok(chordNotes(romanToChord(r, 'C')).every((n) => cMinor.includes(n)), r);
+  assert.ok(chordNotes(parseChord('E')).includes('G#'));
+  assert.ok(!scaleNotes('A', 'aeolian').includes('G#'));
+});
+
+test('method summaries: borrow example (C minor in C major) matches the engine', () => {
+  assert.ok(borrowOptions('V', 'ionian').every((o) => o.from === 'aeolian'));
+  assert.match(METHODS.find((m) => m.id === 'borrow').summary, /same home note/);
+  assert.doesNotMatch(METHODS.map((m) => m.summary).join(' '), /cousin|neighbo/i);
+});

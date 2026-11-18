@@ -1,6 +1,6 @@
 // Chord screen (#/chord/<symbol>): every way to play one chord, stepped through one shape at a time.
 // The selected shape lives in this screen only, not in the address.
-import { parseChord, chordNotes, CHORD_TYPES } from '../../theory/chords.js';
+import { parseChord, chordNotes, CHORD_TYPES, explainType } from '../../theory/chords.js';
 import { pc } from '../../theory/notes.js';
 import { generateVoicings } from '../../guitar/voicings.js';
 import { mainShapes, shapeName, shapeTag } from '../../guitar/shapes.js';
@@ -23,6 +23,16 @@ function unknown() {
 }
 
 const article = (word) => (/^[aeiou]/i.test(word) ? 'an' : 'a');
+// Chord letters said with a vowel sound: an A, an E, an F.
+const articleFor = (name) => (/^[AEF]/.test(name) ? 'an' : 'a');
+// ': a G chord with F added' / ': a D chord with E in place of F♯' / '' for plain major and minor.
+function typeLine(chord) {
+  const { base, added, swap } = explainType(chord);
+  if (!base) return '';
+  const b = prettyChord(base);
+  if (swap) return `: ${articleFor(b)} ${b} chord with ${prettyChord(swap.to)} in place of ${prettyChord(swap.from)}`;
+  return `: ${articleFor(b)} ${b} chord with ${added.map(prettyChord).join(' and ')} added`;
+}
 
 // The real spelled name of a pitch class that belongs to this chord.
 function noteName(chord, pcValue, notes) {
@@ -66,7 +76,7 @@ export const chordView = {
 
     const head = h('header', { class: 'page-head' },
       h('h1', { tabindex: '-1' }, shown),
-      h('p', { class: 'lede' }, `${shown} is ${article(plain)} ${plain} chord${chord.bass ? `, played with ${prettyChord(chord.bass)} as the lowest note` : ''}.`),
+      h('p', { class: 'lede' }, `${shown} is ${article(plain)} ${plain} chord${typeLine(chord)}${chord.bass ? `, played with ${prettyChord(chord.bass)} as the lowest note` : ''}. It sounds ${explainType(chord).feel}.`),
       h('p', { class: 'chord-notes' }, h('span', { class: 'muted' }, 'Notes: '), notes.map(prettyChord).join('  ')));
 
     const shapeTitle = h('span', { class: 'shape-title' });
@@ -158,7 +168,7 @@ export const chordView = {
       }
       if (!v.rootBass && !chord.bass) {
         const lowest = prettyChord(noteName(chord, v.bassPc, notes));
-        lines.push(h('p', { class: 'fact' }, `The lowest note is ${lowest}, not ${prettyChord(chord.root)}: an inversion. It sounds lighter.`));
+        lines.push(h('p', { class: 'fact' }, `The lowest note is ${lowest}, not ${prettyChord(chord.root)}. That makes it an inversion: the same chord with another of its notes at the bottom. It sounds lighter.`));
       } else if (!v.rootBass && chord.bass) {
         lines.push(h('p', { class: 'fact' }, `The lowest note is ${prettyChord(chord.bass)}, as the name asks, not ${prettyChord(chord.root)}.`));
       }
