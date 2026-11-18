@@ -36,7 +36,7 @@ export const PROGRESSIONS = {
   'two-five-one': p('Two, five, one', ['ii7', 'V7', 'Imaj7'], 'C', 'ionian', 90, 4,
     'This is the jazz way to arrive home. Each chord moves the same way, D to G to C: every root falls a fifth (five note names, counting both ends, like D C B A G), so every change feels like a natural slide that ends calmly on home.'),
   'twelve-bar': p('Twelve-bar blues', ['I7', 'I7', 'I7', 'I7', 'IV7', 'IV7', 'I7', 'I7', 'V7', 'IV7', 'I7', 'V7'], 'A', 'mixolydian', 100, 4,
-    'This twelve-bar pattern, built from just three chords, is the backbone of blues. Every chord is a seven chord (a major chord with one extra, slightly clashing note on top), which gives it grit and a restless feel, so the whole thing leans forward.'),
+    'This twelve-bar pattern, built from just three chords, is the backbone of blues. Every chord is a seven chord (a major chord with one extra, slightly clashing note on top), which gives it grit and a restless feel, so the whole thing leans forward. The IV7 chord (D7 here) holds C, the bluesy flat 3rd of A, and V7 (E7 here) holds G sharp, so no single scale holds all three chords. That is why both show as borrowed below.'),
   'mixo-rock': p('Rock flat-seven', ['I', 'bVII', 'IV'], 'G', 'mixolydian', 110, 4,
     'The ♭VII chord (F here) sits a whole step (two frets) below home. In a plain major key the 7th note sits only a half step (one fret) below home, so this lowered 7th gives the open, swaggering sound of classic rock.'),
   'rock-14b74': p('Rock four-flat-seven', ['I', 'IV', 'bVII', 'IV'], 'G', 'mixolydian', 115, 4,

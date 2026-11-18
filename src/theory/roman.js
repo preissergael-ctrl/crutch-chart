@@ -111,7 +111,14 @@ export function borrowedFrom(roman, tonic, mode) {
   const pcs = chordPcs(romanToChord(roman, tonic));
   const inMode = (md) => { const s = scalePcs(tonic, md); return pcs.every((p) => s.includes(p)); };
   if (inMode(mode)) return null;
-  const order = BORROW_ORDER[isMinorMode(mode) ? 'minor' : 'major'];
+  const minor = isMinorMode(mode);
+  // A home that is not plain major or minor looks at its own parallel first: a major-type mode
+  // (lydian, mixolydian) at plain major, a minor-type mode (dorian, phrygian, ...) at plain minor.
+  // E7 in A mixolydian is simply V7 of A major.
+  const parallel = minor ? 'aeolian' : 'ionian';
+  const order = mode === 'ionian' || mode === 'aeolian'
+    ? BORROW_ORDER[minor ? 'minor' : 'major']
+    : [parallel, ...BORROW_ORDER[minor ? 'minor' : 'major'].filter((md) => md !== parallel)];
   return order.find((md) => md !== mode && inMode(md)) ?? null;
 }
 

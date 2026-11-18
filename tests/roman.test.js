@@ -86,3 +86,35 @@ test('G mixolydian family', () => {
   assert.deepEqual(fam('G', 'mixolydian', true),
     ['I7:G7', 'ii7:Am7', 'iiiø7:Bm7b5', 'IVmaj7:Cmaj7', 'v7:Dm7', 'vi7:Em7', 'bVIImaj7:Fmaj7']);
 });
+
+test('twelve-bar blues in A mixolydian: V7 is plain A major, IV7 needs the dorian C', () => {
+  const tb = ['I7', 'I7', 'I7', 'I7', 'IV7', 'IV7', 'I7', 'I7', 'V7', 'IV7', 'I7', 'V7'];
+  const e = explainProgression(tb, 'A', 'mixolydian');
+  const by = Object.fromEntries(e.map((x) => [x.roman, [x.name, x.borrowed]]));
+  // A7 = A C# E G: all in A mixolydian. D7 = D F# A C: C is not in A mixolydian (which has C#)
+  // nor in A major; A dorian (A B C D E F# G) holds it. E7 = E G# B D: G# is in A major.
+  assert.deepEqual(by, { I7: ['A7', null], IV7: ['D7', 'dorian'], V7: ['E7', 'ionian'] });
+});
+test('major-type modes look at the parallel major first, minor-type at the parallel minor', () => {
+  assert.equal(borrowedFrom('V7', 'G', 'mixolydian'), 'ionian'); // D7 has F#
+  assert.equal(borrowedFrom('V', 'C', 'lydian'), null);
+  assert.equal(borrowedFrom('IV', 'C', 'lydian'), 'ionian'); // F is in C major
+  assert.equal(borrowedFrom('bVI', 'A', 'dorian'), 'aeolian'); // F is in A minor, not only in phrygian
+  assert.equal(borrowedFrom('bvii', 'A', 'phrygian'), null); // Gm is in A phrygian
+  assert.equal(borrowedFrom('bVII', 'A', 'phrygian'), 'aeolian'); // G major has B; A minor has it
+  assert.equal(borrowedFrom('iv', 'A', 'phrygian'), null);
+  assert.equal(borrowedFrom('v', 'A', 'phrygian'), 'aeolian'); // Em has B; A minor has it
+  assert.equal(borrowedFrom('bVII', 'A', 'harmonicMinor'), 'aeolian'); // G is in A minor
+});
+test('borrowed labels of every named progression', async () => {
+  const { PROGRESSIONS } = await import('../src/content/progressions.js');
+  const got = {};
+  for (const [id, p] of Object.entries(PROGRESSIONS)) {
+    for (const x of explainProgression(p.romans, p.tonic, p.mode)) if (x.borrowed) got[`${id} ${x.roman}`] = x.borrowed;
+  }
+  assert.deepEqual(got, {
+    'mario bVI': 'aeolian', 'mario bVII': 'aeolian',
+    'twelve-bar IV7': 'dorian', 'twelve-bar V7': 'ionian',
+    'andalusian V': 'harmonicMinor',
+  });
+});

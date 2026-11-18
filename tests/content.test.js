@@ -87,8 +87,8 @@ test('methods', () => {
 
 // ---- Task 16 theory pass: claims in the `why` texts, checked against the engine ----
 import { functionOf, romanToChord } from '../src/theory/roman.js';
-import { scaleNotes } from '../src/theory/scales.js';
-import { chordNotes, parseChord } from '../src/theory/chords.js';
+import { scaleNotes, scalePcs, MODES } from '../src/theory/scales.js';
+import { chordNotes, chordPcs, parseChord } from '../src/theory/chords.js';
 import { pc, LETTERS } from '../src/theory/notes.js';
 import { borrowOptions } from '../src/theory/methods.js';
 
@@ -182,4 +182,17 @@ test('method summaries: borrow example (C minor in C major) matches the engine',
   assert.ok(borrowOptions('V', 'ionian').every((o) => o.from === 'aeolian'));
   assert.match(METHODS.find((m) => m.id === 'borrow').summary, /same home note/);
   assert.doesNotMatch(METHODS.map((m) => m.summary).join(' '), /cousin|neighbo/i);
+});
+
+test('why (twelve-bar): D7 holds C (flat 3rd of A), E7 holds G#, so no one scale holds all three', () => {
+  const c = chordsOf('twelve-bar');
+  const d7 = c.find((x) => x.symbol === 'D7');
+  const e7 = c.find((x) => x.symbol === 'E7');
+  assert.ok(chordNotes(d7).includes('C'));
+  assert.equal((pc('C') - pc('A') + 12) % 12, 3);
+  assert.ok(chordNotes(e7).includes('G#'));
+  for (const mode of Object.keys(MODES)) {
+    const sc = scalePcs('A', mode);
+    assert.ok(!c.every((x) => chordPcs(x).every((n) => sc.includes(n))), mode);
+  }
 });
