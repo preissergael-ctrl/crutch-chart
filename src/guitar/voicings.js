@@ -8,6 +8,17 @@ const CAGED_SHAPES = {
   m: [['A', 'x02210', 9], ['E', '022000', 4], ['D', 'xx0231', 2]],
 };
 
+// The open-position forms every chord book teaches for chords that have no CAGED list here.
+// [tab, root pitch class]. Matched exactly, in open position only, and given a small bonus.
+const OPEN_FORMS = {
+  7: [['x32310', 0], ['x02020', 9], ['320001', 7], ['020100', 4], ['xx0212', 2], ['x21202', 11]],
+  m7: [['x02010', 9], ['020000', 4], ['xx0211', 2]],
+  maj7: [['x32000', 0], ['x02120', 9], ['320002', 7], ['021100', 4], ['xx0222', 2], ['xx3210', 5]],
+  add9: [['x32030', 0], ['320203', 7]],
+  sus4: [['x02230', 9], ['022200', 4], ['xx0233', 2]],
+  sus2: [['x02200', 9], ['xx0230', 2]],
+};
+
 export function fromTab(tab) {
   const out = [];
   const s = String(tab);
@@ -78,10 +89,16 @@ function cagedLabel(frets, chord) {
   return null;
 }
 
-export const WEIGHTS = { span: 2, baseFret: 1.5, open: 2, sounding: 2.5, barre: 0, inner: 3, nonRoot: 6, fingers: 1.5, sandwich: 2.5, caged: 5, highMute: 2.5 };
+function isOpenForm(key, chord) {
+  if (chord.bass) return false;
+  const rootPc = pc(chord.root);
+  return (OPEN_FORMS[chord.quality] ?? []).some(([tab, r]) => r === rootPc && tab === key);
+}
+
+export const WEIGHTS = { span: 2, baseFret: 1.5, open: 2, sounding: 2.5, barre: 0, inner: 4.5, nonRoot: 6, fingers: 1.5, sandwich: 2.5, caged: 5, highMute: 2.5, openForm: 6 };
 export const scoreOf = (f, W = WEIGHTS) => -W.span * f.span - W.baseFret * f.baseFret + W.open * f.openCount + W.sounding * f.count
   - W.barre * f.barre - W.inner * f.inner - W.nonRoot * f.nonRoot - W.fingers * f.fingersUsed
-  - W.sandwich * f.sandwich + W.caged * f.caged - W.highMute * f.highMuted;
+  - W.sandwich * f.sandwich + W.caged * f.caged - W.highMute * f.highMuted + W.openForm * (f.openForm ?? 0);
 
 function search(chord, tuning, maxFret, maxSpan, minSounding) {
   const tones = new Set(chordPcs(chord));
@@ -137,7 +154,7 @@ function search(chord, tuning, maxFret, maxSpan, minSounding) {
     for (let i = first + 1; !caged && i < last; i++) {
       if (copy[i] === 0 && copy.slice(0, i).some((f) => f > 0) && copy.slice(i + 1).some((f) => f > 0)) sandwich++;
     }
-    const feat = { highMuted: n - 1 - last, sandwich, caged: caged ? 1 : 0, span, baseFret, openCount, count, barre: fr.barre ? 1 : 0, inner, nonRoot: rootBass ? 0 : 1, fingersUsed };
+    const feat = { openForm: isOpenForm(key, chord) ? 1 : 0, highMuted: n - 1 - last, sandwich, caged: caged ? 1 : 0, span, baseFret, openCount, count, barre: fr.barre ? 1 : 0, inner, nonRoot: rootBass ? 0 : 1, fingersUsed };
     const score = scoreOf(feat);
     const v = {
       frets: copy, fingers: fr.fingers, barre: fr.barre, baseFret, bassPc, rootBass,

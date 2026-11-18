@@ -42,3 +42,14 @@ test('barre only when needed', () => {
     const r = assignFingers(fromTab(t)); assert.deepEqual(r.fingers, f); assert.equal(r.barre, null); }
   assert.ok(assignFingers(fromTab('133211')).barre); assert.ok(assignFingers(fromTab('x24432')).barre); assert.ok(assignFingers(fromTab('x13331')).barre);
 });
+test('standard open seventh and add9 shapes come first', () => {
+  const want = { Am7: 'x02010', E7: '020100', Fmaj7: 'xx3210', Cadd9: 'x32030', A7: 'x02020', D7: 'xx0212', G7: '320001' };
+  for (const [c, k] of Object.entries(want)) assert.equal(keys(c)[0], k, c);
+});
+test('no first shape has a muted string in the middle', () => {
+  for (const c of ['C', 'G', 'D', 'A', 'E', 'Am', 'Em', 'Dm', 'Am7', 'Em7', 'Dm7', 'E7', 'A7', 'D7', 'G7', 'C7', 'B7', 'Cmaj7', 'Fmaj7', 'Gmaj7', 'Cadd9', 'Asus4', 'Dsus2']) {
+    const f = generateVoicings(c)[0].frets;
+    const on = f.map((x, i) => (x === null ? -1 : i)).filter((i) => i >= 0);
+    for (let i = on[0]; i <= on[on.length - 1]; i++) assert.notEqual(f[i], null, c + ' ' + generateVoicings(c)[0].key);
+  }
+});
