@@ -38,7 +38,8 @@ export function loopsTool(ctx, sound) {
 
 export function circleTool(ctx, sound, params = {}) {
   let key = { tonic: params.t === 'A' ? 'A' : 'C', minor: params.m === 'aeolian' };
-  let len = Math.min(5, Math.max(2, Math.round(Number(params.n)) || 4));
+  const nParam = Math.round(Number(params.n));
+  let len = Number.isFinite(nParam) ? Math.min(5, Math.max(2, nParam)) : 4;
   const body = h('div', { class: 'tool-body' });
   const out = h('output', { class: 'tempo-out', for: 'len' }, String(len));
   const slider = h('input', { id: 'len', type: 'range', min: 2, max: 5, step: 1, value: len, class: 'range', 'aria-valuetext': `${len} chords` });
@@ -50,7 +51,7 @@ export function circleTool(ctx, sound, params = {}) {
     const chords = progressionChords(romans, key.tonic);
     const at = romans.indexOf('bVI');
     const odd = key.minor && at >= 0 && romans[at + 1] === 'ii°'
-      ? ` One link here (${prettyChord(chords[at].root)} to ${prettyChord(chords[at + 1].root)}) is a slightly smaller fifth, because ${prettyChord(chords[at + 1].root)} is the scale’s tense, unstable chord.`
+      ? ` One link here (${prettyChord(chords[at].root)} to ${prettyChord(chords[at + 1].root)}) is a diminished fifth: a half step narrower than a normal fifth. That’s simply how the notes of the minor scale are spaced.`
       : '';
     body.replaceChildren(progRow(ctx, sound, {
       id: 'circle', tonic: key.tonic, mode, romans, title: `A chain of ${len} chords`,
