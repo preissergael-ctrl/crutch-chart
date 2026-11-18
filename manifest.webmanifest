@@ -1,0 +1,14 @@
+{
+  "name": "Crutch Chart",
+  "short_name": "Crutch Chart",
+  "description": "Find chord progressions by mood, learn why they work, and play them on guitar. Works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eceee8",
+  "theme_color": "#eceee8",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

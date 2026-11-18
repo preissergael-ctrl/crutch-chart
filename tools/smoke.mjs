@@ -2,8 +2,9 @@
 // Run: node tools/smoke.mjs http://localhost:5173/ <outDir>
 // Exits 1 if any route threw, logged a console error, failed to load a file, or scrolls sideways.
 import { spawn } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 
 // Later tasks append their routes here.
@@ -42,6 +43,9 @@ export const ROUTES = [
   '#/learn/reading-the-neck',
   '#/learn/nope',
   '#/prog?t=C&m=ionian&r=I,bVII,IV,I&src=lesson:borrowed',
+  '#/prog?t=A&m=aeolian&r=i,bVII,bVI,V&src=saved&bpm=70&b=2&p=folk&k=strum',
+  '#/saved',
+  '#/about',
 ];
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
@@ -94,7 +98,8 @@ async function main() {
   }
   const outDir = resolve(outArg);
   mkdirSync(outDir, { recursive: true });
-  const profile = join(outDir, `chrome-profile-${Date.now()}`);
+  // Outside the repo: Chrome's cache storage fails inside a OneDrive folder.
+  const profile = join(tmpdir(), `crutch-smoke-profile-${Date.now()}`);
 
   const chrome = spawn(CHROME, [
     '--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`,
@@ -130,10 +135,23 @@ async function main() {
     await send('Log.enable');
     await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: HEIGHT, deviceScaleFactor: 2, mobile: true });
 
-    for (const route of ROUTES) {
+    const only = process.env.SMOKE_ONLY ? process.env.SMOKE_ONLY.split('|') : null;
+    for (const route of ROUTES.filter((r) => !only || only.some((s) => r.includes(s)))) {
       currentRoute = route;
       const sep = base.includes('?') ? '&' : '?';
       const url = `${base}${sep}smoke=${Date.now()}${route}`;
+      if (route === '#/saved') {
+        // Seed two saved progressions so the screenshot shows a filled list (same origin as the app).
+        const ch = (roman, name, quality, root) => ({ roman, name, quality, root });
+        const state = {
+          version: 1, known: ['Am', 'F', 'C', 'Dm', 'G', 'Bb7'], settings: { bpm: 90, patternId: 'folk', kind: 'strum', lastKey: null },
+          saved: [
+            { id: 'a1', name: 'Rainy window', tonic: 'A', mode: 'aeolian', chords: [ch('i', 'Am', 'm', 'A'), ch('bVII', 'G', '', 'G'), ch('bVI', 'F', '', 'F'), ch('V', 'E', '', 'E')], bpm: 70, beatsPerChord: 2, timeSig: 4, patternId: 'folk', kind: 'strum', source: 'saved', createdAt: 1 },
+            { id: 'b2', name: 'Morning in Bb', tonic: 'Bb', mode: 'ionian', chords: [ch('I', 'Bb', '', 'Bb'), ch('V', 'F', '', 'F'), ch('vi', 'Gm', 'm', 'G'), ch('IV', 'Eb', '', 'Eb')], bpm: 100, beatsPerChord: 4, timeSig: 4, patternId: 'folk', kind: 'strum', source: 'custom', createdAt: 2 },
+          ],
+        };
+        await send('Runtime.evaluate', { expression: `localStorage.setItem('crutchchart:v1', ${JSON.stringify(JSON.stringify(state))})` });
+      }
       const onLoad = new Promise((r) => { loaded = r; });
       const nav = await send('Page.navigate', { url });
       if (nav.errorText) errors.push(`${route}: navigation failed: ${nav.errorText}`);
@@ -168,6 +186,40 @@ async function main() {
       }
 
       // Playback check: press Play twice (the second press must restart cleanly), then a chord should light up.
+      // Method tools: pressing a row's Play must start sound, and leaving the screen must stop it.
+      if (route === '#/saved') {
+        const add = async (sym) => (await send('Runtime.evaluate', {
+          expression: `(() => { const i = document.querySelector('#add-chord'); i.value = ${JSON.stringify(sym)}; i.form.requestSubmit(); return document.querySelector('.field-msg').textContent; })()`,
+          returnByValue: true,
+        })).result.value;
+        const bad = await add('Hm');
+        if (!bad.includes('I don’t know the chord “Hm”')) errors.push(`${route}: bad chord message was "${bad}"`);
+        const dup = await add('Am');
+        if (dup !== 'Already on your list.') errors.push(`${route}: duplicate message was "${dup}"`);
+        const good = await add('Em');
+        if (!good.startsWith('Added')) errors.push(`${route}: adding Em said "${good}"`);
+        const opens = await send('Runtime.evaluate', { expression: "document.querySelector('.saved-row .button')?.getAttribute('href')", returnByValue: true });
+        if (!String(opens.result.value).includes('bpm=70')) errors.push(`${route}: Open link lacks saved settings (${opens.result.value})`);
+        if (errors.length === 0 || !errors.some((e) => e.startsWith(route))) console.log(`ok  ${route}  my chords validate, add, and the Open link carries saved settings`);
+      }
+
+      if (route === '#/method/loops') {
+        const before = errors.length;
+        await send('Runtime.evaluate', { expression: "document.querySelector('.play-btn')?.click()" });
+        await wait(1000);
+        const r = await send('Runtime.evaluate', {
+          expression: "JSON.stringify({ playing: window.__crutch.player.playing, label: document.querySelector('.play-btn')?.textContent || '' })",
+          returnByValue: true,
+        });
+        const st = JSON.parse(r.result.value);
+        if (!st.playing && !/stop/i.test(st.label)) errors.push(`${route}: Play in a method row did not start (${r.result.value})`);
+        await send('Runtime.evaluate', { expression: "location.hash = '#/find'" });
+        await wait(400);
+        const after = await send('Runtime.evaluate', { expression: 'window.__crutch.player.playing', returnByValue: true });
+        if (after.result.value !== false) errors.push(`${route}: still playing after leaving the screen`);
+        if (errors.length === before) console.log(`ok  ${route}  row Play starts, and stops on leaving`);
+      }
+
       if (route.includes('id=axis')) {
         const before = errors.length;
         const press = "(() => { const b = document.querySelector('.play'); if (!b) return false; b.click(); return true; })()";
@@ -189,6 +241,56 @@ async function main() {
         await send('Runtime.evaluate', { expression: "document.querySelector('.stop')?.click()" });
         if (errors.length === before) console.log(`ok  ${route}  no exceptions while playing`);
       }
+    }
+
+    // Offline: after the service worker has cached everything, cut the network and play a progression.
+    {
+      currentRoute = '(offline check)';
+      const before = errors.length;
+      const swSource = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
+      const listed = [...new Set([...swSource.matchAll(/'(\.\/[^']*)'/g)].map((m) => m[1]))];
+      const expected = listed.length;
+      const onLoad = new Promise((r) => { loaded = r; });
+      await send('Page.navigate', { url: base });
+      await Promise.race([onLoad, wait(8000)]);
+      loaded = null;
+      // Wait for the service worker to finish precaching: every listed file must be in the cache.
+      const cached = await send('Runtime.evaluate', {
+        expression: `navigator.serviceWorker.ready.then(async () => {
+          const list = ${JSON.stringify(listed)};
+          const cache = await caches.open('crutchchart-v1');
+          let missing = list;
+          for (let i = 0; i < 80 && missing.length; i++) {
+            const have = new Set((await cache.keys()).map((r) => r.url));
+            missing = list.filter((f) => !have.has(new URL(f, location.href).href));
+            if (missing.length) await new Promise((r) => setTimeout(r, 250));
+          }
+          return missing;
+        })`,
+        awaitPromise: true, returnByValue: true,
+      });
+      if (!Array.isArray(cached.result.value) || cached.result.value.length) errors.push(`offline: not cached: ${JSON.stringify(cached.result.value)}`);
+      await send('Network.enable');
+      await send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
+      const onReload = new Promise((r) => { loaded = r; });
+      await send('Page.reload');
+      await Promise.race([onReload, wait(8000)]);
+      loaded = null;
+      await send('Runtime.evaluate', { expression: "location.hash = '#/prog?t=C&m=ionian&r=I,V,vi,IV'" });
+      await wait(600);
+      const ready = await send('Runtime.evaluate', { expression: "!!document.querySelector('.play')", returnByValue: true });
+      if (ready.result.value !== true) errors.push('offline: progression screen did not render');
+      await send('Runtime.evaluate', { expression: "document.querySelector('.play')?.click()" });
+      let ok = false;
+      for (let i = 0; i < 12 && !ok; i++) {
+        await wait(250);
+        ok = (await send('Runtime.evaluate', { expression: 'window.__crutch.engine.loaded === true', returnByValue: true })).result.value === true;
+      }
+      if (!ok) errors.push('offline: sounds did not load from the cache');
+      const shot = await send('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(outDir, 'offline-prog.png'), Buffer.from(shot.data, 'base64'));
+      await send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+      if (errors.length === before) console.log(`ok  offline  ${expected} files cached; reload, open a progression, Play: sounds loaded`);
     }
 
     // Close Chrome politely through the browser endpoint, then make sure.

@@ -11,6 +11,8 @@ import { progressionView } from './views/progression.js';
 import { chordView } from './views/chord.js';
 import { methodView } from './views/method.js';
 import { learnView } from './views/learn.js';
+import { savedView } from './views/saved.js';
+import { aboutView } from './views/about.js';
 
 // Screens that later tasks build. Until then they show a calm placeholder.
 const comingSoon = {
@@ -29,8 +31,8 @@ const VIEWS = {
   prog: progressionView,
   chord: chordView,
   learn: learnView,
-  saved: comingSoon,
-  about: comingSoon,
+  saved: savedView,
+  about: aboutView,
 };
 
 // Which tab lights up for each screen.
@@ -110,3 +112,14 @@ document.querySelector('.skip')?.addEventListener('click', () => {
 route();
 
 if (location.hostname === 'localhost') window.__crutch = { store, engine, player, ctx };
+
+// Offline support. Registration problems must never break the app.
+function registerWorker() {
+  try {
+    navigator.serviceWorker.register('./sw.js').catch((err) => console.warn('Service worker not registered', err));
+  } catch (err) { console.warn(err); }
+}
+if ('serviceWorker' in navigator) {
+  if (document.readyState === 'complete') registerWorker();
+  else window.addEventListener('load', registerWorker);
+}

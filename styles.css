@@ -771,3 +771,32 @@ button.chord { font: inherit; cursor: pointer; width: 100%; }
 .lesson-next:hover { border-color: var(--pine); }
 .lesson-next-eyebrow { display: block; font-size: 13px; color: var(--ink-soft); }
 .lesson-next-title { display: block; font: 600 18px/1.3 var(--serif); }
+
+/* ---------- Saved, My chords, About ---------- */
+.saved .section.first { margin-top: 30px; }
+.saved-list { display: grid; gap: 12px; }
+.saved-row {
+  display: grid; gap: 14px; padding: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.saved-text { display: grid; gap: 8px; min-width: 0; }
+.saved-name { font: 600 18px/1.3 var(--serif); }
+.saved-meta { font-size: 14px; color: var(--ink-soft); }
+.saved-actions { display: flex; align-items: center; gap: 8px; }
+.confirm-q { font-weight: 600; font-size: 15px; margin-right: 4px; }
+.empty { padding: 20px; background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.empty p { margin: 0 0 14px; color: var(--ink-soft); }
+.empty p:last-child { margin-bottom: 0; }
+.saved .chip { display: inline-flex; align-items: center; gap: 4px; padding: 0 4px 0 12px; min-height: 40px; }
+.saved .chips { list-style: none; padding: 0; margin: 0 0 18px; }
+.saved .chip-x { min-width: 36px; min-height: 36px; border: 0; background: none; border-radius: var(--radius-sm); cursor: pointer; }
+.saved .chip-x:hover { background: var(--pine-tint); color: var(--pine); }
+.field-msg { margin: 10px 0 0; font-size: 15px; font-weight: 500; }
+.field-msg:empty { display: none; }
+.file-input { display: none; }
+.about-link { margin: 44px 0 0; }
+.about-link a { text-decoration: none; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-weight: 600; color: var(--pine); }
+.inline-icon { width: 20px; height: 20px; }
+.about-quote { font: 500 22px/1.4 var(--serif); margin: 14px 0 0; max-width: 24em; color: var(--ink-soft); }
+.about .lede { margin-top: 4px; }
+.credit { font-size: 15px; color: var(--ink-soft); margin: 8px 0 0; max-width: 34em; }

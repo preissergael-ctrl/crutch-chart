@@ -80,7 +80,9 @@ export const progressionView = {
 
     const { t: tonic, m: mode, r: romans, src } = params;
     const entry = Object.hasOwn(PROGRESSIONS, params.id ?? '') ? PROGRESSIONS[params.id] : null;
-    const timeSig = entry ? entry.timeSig : 4;
+    // Saved progressions reopen with their own settings through extra query params, each one validated here:
+    //   bpm=50..160  b=2|4 (beats per chord)  p=<patternId>  k=strum|pick  ts=3|4 (only when there is no id)
+    const timeSig = entry ? entry.timeSig : (params.ts === '3' ? 3 : 4);
     const settings = () => ctx.store.state.settings;
     const known = () => ctx.store.state.known;
 
@@ -93,10 +95,14 @@ export const progressionView = {
     const strums = STRUMS.filter((p) => p.timeSig === timeSig);
     const picks = PICKS.filter((p) => p.timeSig === timeSig);
     const listFor = (k) => (k === 'pick' ? picks : strums);
-    let kind = settings().kind === 'pick' && picks.length ? 'pick' : 'strum';
-    let pattern = listFor(kind).find((p) => p.id === settings().patternId) ?? listFor(kind)[0];
-    let bpm = clampBpm(carry?.bpm ?? (entry ? entry.bpm : settings().bpm));
-    let beats = carry?.beats ?? (entry && [2, 4].includes(entry.beatsPerChord) ? entry.beatsPerChord : 4);
+    const wantKind = carry?.kind ?? (['strum', 'pick'].includes(params.k) ? params.k : settings().kind);
+    let kind = wantKind === 'pick' && picks.length ? 'pick' : 'strum';
+    const wantPattern = carry?.patternId ?? (typeof params.p === 'string' ? params.p : settings().patternId);
+    let pattern = listFor(kind).find((p) => p.id === wantPattern) ?? listFor(kind)[0];
+    const paramBpm = /^\d{2,3}$/.test(params.bpm ?? '') ? Number(params.bpm) : null;
+    const paramBeats = ['2', '4'].includes(params.b) ? Number(params.b) : null;
+    let bpm = clampBpm(carry?.bpm ?? paramBpm ?? (entry ? entry.bpm : settings().bpm));
+    let beats = carry?.beats ?? paramBeats ?? (entry && [2, 4].includes(entry.beatsPerChord) ? entry.beatsPerChord : 4);
     let loop = carry?.loop ?? true;
     let countIn = carry?.countIn ?? false;
     const resume = !!carry?.resume;
@@ -183,8 +189,8 @@ export const progressionView = {
     const keySelect = h('select', { id: 'key-pick', class: 'select' },
       keyList.map((k) => h('option', { value: k, selected: k === tonic }, `${prettyChord(k)}${minor ? ' minor' : ' major'}`)));
     keySelect.addEventListener('change', () => {
-      carry = { bpm, beats, loop, countIn, resume: active() };
-      ctx.go('prog', { t: keySelect.value, m: mode, r: romans, src, id: params.id });
+      carry = { bpm, beats, loop, countIn, kind, patternId: pattern.id, resume: active() };
+      ctx.go('prog', { t: keySelect.value, m: mode, r: romans, src, id: params.id, ts: params.ts });
     });
 
     const bpmOut = h('output', { class: 'tempo-out', for: 'tempo' }, String(bpm));
