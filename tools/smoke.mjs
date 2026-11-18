@@ -31,6 +31,10 @@ export const ROUTES = [
   '#/method/bass',
   '#/method/rotate?t=A&m=aeolian&r=i,bVI,bIII,bVII',
   '#/method/spice?t=C&m=nope&r=I',
+  '#/method/circle?t=C&m=ionian&n=3',
+  '#/method/circle?t=C&m=ionian&n=5',
+  '#/method/circle?t=A&m=aeolian&n=3',
+  '#/method/circle?t=A&m=aeolian&n=5',
   '#/method/nope',
 ];
 

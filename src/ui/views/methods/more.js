@@ -36,9 +36,9 @@ export function loopsTool(ctx, sound) {
     h('ul', { class: 'loop-list' }, cards));
 }
 
-export function circleTool(ctx, sound) {
-  let key = { tonic: 'C', minor: false };
-  let len = 4;
+export function circleTool(ctx, sound, params = {}) {
+  let key = { tonic: params.t === 'A' ? 'A' : 'C', minor: params.m === 'aeolian' };
+  let len = Math.min(5, Math.max(2, Number(params.n) || 4));
   const body = h('div', { class: 'tool-body' });
   const out = h('output', { class: 'tempo-out', for: 'len' }, String(len));
   const slider = h('input', { id: 'len', type: 'range', min: 2, max: 5, step: 1, value: len, class: 'range', 'aria-valuetext': `${len} chords` });
@@ -47,9 +47,14 @@ export function circleTool(ctx, sound) {
     sound.stop();
     const mode = key.minor ? 'aeolian' : 'ionian';
     const romans = circleChain(len, mode);
+    const chords = progressionChords(romans, key.tonic);
+    const at = romans.indexOf('bVI');
+    const odd = key.minor && at >= 0 && romans[at + 1] === 'ii°'
+      ? ` One link here (${prettyChord(chords[at].root)} to ${prettyChord(chords[at + 1].root)}) is a slightly smaller fifth, because ${prettyChord(chords[at + 1].root)} is the scale’s unstable “diminished” chord.`
+      : '';
     body.replaceChildren(progRow(ctx, sound, {
       id: 'circle', tonic: key.tonic, mode, romans, title: `A chain of ${len} chords`,
-      sub: `Each chord’s root is a fifth above the next one’s (five notes up the scale, counting the first), so they fall like dominoes and land on ${prettyChord(progressionChords(romans.slice(-1), key.tonic)[0].symbol)}, home.${key.minor ? ' In a minor key, one link is a slightly smaller fifth, because that’s how the scale is built.' : ''}`,
+      sub: `Each chord’s root is a fifth above the next one’s (five notes up the scale, counting the first), so they fall like dominoes and land on ${prettyChord(chords[chords.length - 1].symbol)}, home.${odd}`,
     }));
   }
   slider.addEventListener('input', () => {
@@ -61,7 +66,7 @@ export function circleTool(ctx, sound) {
   const picker = keyPicker(key, (k) => { key = k; draw(); });
   draw();
   return h('div', { class: 'tool' },
-    h('p', { class: 'section-intro' }, 'Chain chords that each fall by the same smooth step. Always end at home.'),
+    h('p', { class: 'section-intro' }, 'Pick a key and how long the chain should be. It always ends at home.'),
     picker,
     h('div', { class: 'field' },
       h('label', { for: 'len' }, 'How many chords'),
