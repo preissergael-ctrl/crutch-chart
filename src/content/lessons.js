@@ -44,7 +44,7 @@ export const LESSONS = [
     blocks: [
       { p: 'Count up the key from home: in C major, C is 1, D is 2, E is 3, and so on up to B, which is 7. Build a chord on each note and it gets that number.' },
       { p: 'The numbers are written as Roman numerals. Big letters mean a major chord (bright) and small letters mean a minor chord (softer). In C major: I is C, ii is Dm, iii is Em, IV is F, V is G, vi is Am, and vii° is B°. The little circle means diminished, a tense chord.' },
-      { p: 'Why bother? Because the numbers stay the same when you change key. I–V–vi–IV is C G Am F in C, and G D Em C in G. Same shape of song, just higher.' },
+      { p: 'Why bother? Because the numbers stay the same when you change key. I–V–vi–IV is C G Am F in C, and G D Em C in G. Same shape of song, starting from a different note.' },
       { p: 'That’s how the famous loops in this app work: they’re stored as numbers, so you can play them in any key.' },
       tryIt('I–V–vi–IV in C', ['I', 'V', 'vi', 'IV']),
       tryIt('The same numbers in G', ['I', 'V', 'vi', 'IV'], 'G'),
@@ -150,7 +150,7 @@ export const LESSONS = [
   {
     id: 'borrowed',
     title: 'Borrowed chords',
-    teaser: 'Take a chord from the minor key next door for a surprise.',
+    teaser: 'Take a chord from the minor key with the same home note for a surprise.',
     blocks: [
       { p: 'Play C B♭ F C. The B♭ sounds bigger and a bit rebellious, like classic rock. But B♭ isn’t in C major. The key has B, not B♭.' },
       { p: 'B♭ comes from C minor, the minor key with the same home note. Using a chord from there in a major song is called borrowing. It adds color without losing home.' },
@@ -186,7 +186,8 @@ export const LESSONS = [
       { p: 'Play C, then Cmaj7. The second one sounds softer and dreamier. Cmaj7 is just C with one more note on top: C E G plus B.' },
       { neck: 'Cmaj7' },
       { p: 'Cmaj7 is even easier than C: lift your index finger off. Small changes like this are how you add color.' },
-      { p: 'Each kind has a feel. maj7 (major 7th) is dreamy. 7 (dominant 7th) is bluesy and wants to move: G7 is G B D plus F. sus2 and sus4 (suspended) swap the middle note for a neighbor: Dsus2 is D E A, Dsus4 is D G A. sus2 sounds open, sus4 hangs. add9 adds a bright, shimmery note.' },
+      { p: 'Each kind has a feel. maj7 (major 7th) is dreamy. A plain 7 is the kind of 7th the V chord gets in a major key: G7 in C, which is G B D plus F. It sounds bluesy and wants to move. add9 adds the note just above the root, up high: Cadd9 is C E G plus D. It sounds bright and shimmery.' },
+      { p: 'sus2 and sus4 (suspended) swap the middle note for a neighbor: Dsus2 is D E A, Dsus4 is D G A. sus2 sounds open, sus4 hangs.' },
       tryIt('Dreamy sevenths', ['Imaj7', 'IVmaj7']),
       tryIt('Smooth sevenths', ['ii7', 'V7', 'Imaj7']),
       { method: 'spice' },
@@ -200,7 +201,7 @@ export const LESSONS = [
       { p: 'Play C, G/B, Am. Listen to the lowest notes: C, B, A. The bass walks down one step at a time.' },
       { p: 'G/B is a slash chord. It means: play a G chord, with B as the lowest note. The letter after the slash is the bass note.' },
       { neck: 'G/B' },
-      { p: 'When a chord’s lowest note isn’t the note it’s named after, it’s called an inversion. It sounds lighter, and it lets the bass move smoothly from chord to chord.' },
+      { p: 'When the lowest note is another note of the chord, like the B in G/B, it’s called an inversion. It sounds lighter, and it lets the bass move smoothly from chord to chord.' },
       { p: 'Keep going: C G/B Am C/G F walks the bass all the way down, C B A G F. Or climb up: C Dm C/E F walks C D E F.' },
       tryIt('Walking down', ['I', 'V/3', 'vi', 'I/5', 'IV']),
       tryIt('Climbing up', ['I', 'ii', 'I/3', 'IV']),

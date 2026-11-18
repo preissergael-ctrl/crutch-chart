@@ -249,3 +249,37 @@ test('claim (strum-and-pick): folk strum is D - D U - U D U; Travis thumb swaps 
 test('claim: Am F C G has no pull chord (why it keeps circling)', () => {
   assert.ok(['i', 'bVI', 'bIII', 'bVII'].every((r) => functionOf(r) !== 'pull'));
 });
+
+// ---- Review round 1 ----
+
+test('claim (chord-numbers): moving key shifts every chord by the same distance, from a different starting note', () => {
+  const c = progressionChords(['I', 'V', 'vi', 'IV'], 'C');
+  const g = progressionChords(['I', 'V', 'vi', 'IV'], 'G');
+  const shifts = c.map((x, i) => (pc(g[i].root) - pc(x.root) + 12) % 12);
+  assert.ok(shifts.every((d) => d === shifts[0]));
+  assert.deepEqual(c.map((x) => x.quality), g.map((x) => x.quality));
+});
+
+test('claim (slash-chords): in G/B and every walking-bass chord, the bass is another note of the chord', () => {
+  assert.ok(notes('G').includes(parseChord('G/B').bass));
+  for (const w of Object.values(BASS_WALKS)) {
+    for (const c of progressionChords(w.romans, 'C').filter((x) => x.bass)) {
+      assert.ok(chordNotes({ ...c, bass: null }).includes(c.bass), c.symbol);
+    }
+  }
+});
+
+test('claim (borrowed teaser): the borrowed chords come from the minor key with the same home note', () => {
+  assert.match(LESSONS.find((l) => l.id === 'borrowed').teaser, /same home note/);
+  for (const r of ['bVII', 'bVI', 'bIII', 'iv']) {
+    const notesOfChord = notes(progressionChords([r], 'C')[0].symbol);
+    assert.ok(notesOfChord.every((n) => scaleNotes('C', 'aeolian').includes(n)), r);
+  }
+});
+
+test('claim (colors): a plain 7 is the V chord’s 7th in a major key; Cadd9 is C E G plus D, the note above the root', () => {
+  const sev = diatonicFamily('C', 'ionian', true);
+  assert.deepEqual(sev.filter((x) => x.chord.quality === '7').map((x) => `${x.roman}=${x.chord.symbol}`), ['V7=G7']);
+  assert.deepEqual(notes('Cadd9'), ['C', 'E', 'G', 'D']);
+  assert.equal(scaleNotes('C', 'ionian')[1], 'D');
+});
