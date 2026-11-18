@@ -78,10 +78,10 @@ function cagedLabel(frets, chord) {
   return null;
 }
 
-export const WEIGHTS = { span: 2, baseFret: 1.5, open: 2, sounding: 2.5, barre: 0, inner: 3, nonRoot: 6, fingers: 1.5, sandwich: 2.5, caged: 3 };
+export const WEIGHTS = { span: 2, baseFret: 1.5, open: 2, sounding: 2.5, barre: 0, inner: 3, nonRoot: 6, fingers: 1.5, sandwich: 2.5, caged: 5, highMute: 2.5 };
 export const scoreOf = (f, W = WEIGHTS) => -W.span * f.span - W.baseFret * f.baseFret + W.open * f.openCount + W.sounding * f.count
   - W.barre * f.barre - W.inner * f.inner - W.nonRoot * f.nonRoot - W.fingers * f.fingersUsed
-  - W.sandwich * f.sandwich + W.caged * f.caged;
+  - W.sandwich * f.sandwich + W.caged * f.caged - W.highMute * f.highMuted;
 
 function search(chord, tuning, maxFret, maxSpan, minSounding) {
   const tones = new Set(chordPcs(chord));
@@ -137,7 +137,7 @@ function search(chord, tuning, maxFret, maxSpan, minSounding) {
     for (let i = first + 1; !caged && i < last; i++) {
       if (copy[i] === 0 && copy.slice(0, i).some((f) => f > 0) && copy.slice(i + 1).some((f) => f > 0)) sandwich++;
     }
-    const feat = { sandwich, caged: caged ? 1 : 0, span, baseFret, openCount, count, barre: fr.barre ? 1 : 0, inner, nonRoot: rootBass ? 0 : 1, fingersUsed };
+    const feat = { highMuted: n - 1 - last, sandwich, caged: caged ? 1 : 0, span, baseFret, openCount, count, barre: fr.barre ? 1 : 0, inner, nonRoot: rootBass ? 0 : 1, fingersUsed };
     const score = scoreOf(feat);
     const v = {
       frets: copy, fingers: fr.fingers, barre: fr.barre, baseFret, bassPc, rootBass,

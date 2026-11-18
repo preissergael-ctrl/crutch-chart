@@ -33,3 +33,7 @@ test('beginner-standard first choices', () => {
 test('root-position shapes come first', () => {
   for (const c of ['Dm', 'C', 'G', 'Am', 'F']) for (const v of generateVoicings(c).slice(0, 3)) assert.equal(v.rootBass, true, c + ' ' + v.key);
 });
+test('minor standard first choices', () => {
+  assert.equal(keys('Gm')[0], '355333'); assert.equal(keys('C#m')[0], 'x46654'); assert.equal(keys('Fm')[0], '133111');
+  assert.equal(generateVoicings('C#m')[0].caged, 'A');
+});
