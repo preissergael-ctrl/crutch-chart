@@ -1,4 +1,4 @@
-import { parseRoman, romanToChord, isMinorMode } from './roman.js';
+import { parseRoman, romanToChord, isMinorMode, diatonicFamily, KEYS } from './roman.js';
 import { scalePcs } from './scales.js';
 import { chordPcs } from './chords.js';
 
@@ -102,3 +102,18 @@ export const BASS_WALKS = {
   descending: { name: 'Walking down', romans: ['I', 'V/3', 'vi', 'I/5', 'IV'] },
   climb: { name: 'Climbing up', romans: ['I', 'ii', 'I/3', 'IV'] },
 };
+
+// The key (major or minor) whose chord family holds the most chords you know. knows(symbol) says
+// whether you know a chord. Ties go to C major, then A minor, then a key whose home chord you know.
+export function bestFamilyKey(knows) {
+  const keys = [{ tonic: 'C', minor: false }, { tonic: 'A', minor: true },
+    ...KEYS.major.map((tonic) => ({ tonic, minor: false })), ...KEYS.minor.map((tonic) => ({ tonic, minor: true }))];
+  let best = null;
+  keys.forEach((k, i) => {
+    const fam = diatonicFamily(k.tonic, k.minor ? 'aeolian' : 'ionian').map((x) => x.chord.symbol);
+    const score = fam.filter(knows).length;
+    const home = i < 2 ? 2 : (knows(fam[0]) ? 1 : 0); // C major and A minor first, then a known home chord
+    if (!best || score > best.score || (score === best.score && home > best.home)) best = { key: k, score, home };
+  });
+  return { ...best.key };
+}

@@ -1,6 +1,6 @@
 // Chord family tool: the seven chords of one key, build a progression by tapping, and try one new chord.
 import { diatonicFamily, romanToChord, FUNCTION_PLAIN, functionOf } from '../../../theory/roman.js';
-import { borrowOptions, nextHints } from '../../../theory/methods.js';
+import { borrowOptions, nextHints, bestFamilyKey } from '../../../theory/methods.js';
 import { isKnown } from '../../../guitar/capo.js';
 import { routeHash } from '../../router.js';
 import { h, prettyChord, prettyRoman } from '../../dom.js';
@@ -40,11 +40,12 @@ const MOOD_MINOR = {
 const moodOf = (roman, minor) => (minor ? MOOD_MINOR : MOOD_MAJOR)[roman] ?? FUNCTION_PLAIN[functionOf(roman)].split(':')[0];
 
 export function familyTool(ctx, sound, params) {
-  let key = { tonic: 'C', minor: false };
+  const known = () => ctx.store.state.known;
+  // Opens on the key whose family holds the most of your chords; picking a key below overrides it.
+  let key = bestFamilyKey((s) => isKnown(s, known()));
   let picks = [];
 
   const mode = () => (key.minor ? 'aeolian' : 'ionian');
-  const known = () => ctx.store.state.known;
   const fam = () => diatonicFamily(key.tonic, mode(), false);
 
   const headline = h('p', { class: 'headline', role: 'status' });

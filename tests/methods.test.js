@@ -71,3 +71,15 @@ test('BASS_WALKS', () => {
   assert.deepEqual(syms('descending'), ['C', 'G/B', 'Am', 'C/G', 'F']);
   assert.deepEqual(syms('climb'), ['C', 'Dm', 'C/E', 'F']);
 });
+
+import { bestFamilyKey } from '../src/theory/methods.js';
+import { isKnown } from '../src/guitar/capo.js';
+test('bestFamilyKey: the key whose family holds most known chords, ties to C major then A minor', () => {
+  const pick = (known) => bestFamilyKey((s) => isKnown(s, known));
+  assert.deepEqual(pick(['Am', 'F', 'C', 'Dm', 'G']), { tonic: 'C', minor: false });
+  assert.deepEqual(pick([]), { tonic: 'C', minor: false });
+  assert.deepEqual(pick(['G', 'D', 'Em', 'C', 'Am']), { tonic: 'G', minor: false });
+  // G major and E minor share all four; after C major and A minor, the key whose home chord you know wins.
+  assert.deepEqual(pick(['Em', 'Am', 'Bm', 'D']), { tonic: 'E', minor: true });
+  assert.deepEqual(pick(['Am', 'Dm', 'Em']), { tonic: 'C', minor: false });
+});
