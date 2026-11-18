@@ -1,0 +1,451 @@
+/* Crutch Chart: Pine and birch. Literata for headings, Outfit for everything else. */
+
+@font-face {
+  font-family: 'Literata';
+  src: url('fonts/literata.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Outfit';
+  src: url('fonts/outfit.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #eceee8;          /* birch */
+  --pine: #1f3a30;
+  --surface: #ffffff;
+  --line: #d5dacf;
+  --line-strong: #b9c2b3;
+  --wood: #f6f1e7;        /* neck wood */
+  --wood-line: #e4dbc9;
+  --fret: #cfc6b6;
+  --string: #8b8172;
+  --ink: var(--pine);
+  --ink-soft: #52645b;
+  --pine-hover: #2b4c3f;
+  --pine-tint: #dfe6dd;
+
+  --serif: 'Literata', Georgia, 'Times New Roman', serif;
+  --sans: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --gutter: 16px;
+  --tabbar: 68px;
+
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+::selection { background: #cddbd0; }
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  margin: 0;
+  text-wrap: balance;
+}
+h1 { font-size: 30px; line-height: 1.15; letter-spacing: -0.015em; }
+h2 { font-size: 21px; line-height: 1.25; letter-spacing: -0.005em; }
+p { margin: 0 0 12px; }
+a { color: inherit; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+
+/* Keyboard focus: always visible, never on mouse taps. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+h1[tabindex="-1"]:focus-visible, main:focus-visible { outline: none; }
+
+.skip {
+  position: absolute;
+  left: var(--gutter);
+  top: -80px;
+  z-index: 20;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pine);
+  color: #fff;
+  font: 600 15px/1 var(--sans);
+}
+.skip:focus-visible { top: 12px; }
+
+/* ---------- Shell ---------- */
+
+.shell {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) 0 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 2px;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: var(--pine);
+}
+.brand-mark { width: 22px; height: 22px; color: var(--pine); flex: none; }
+
+main {
+  display: block;
+  padding-bottom: calc(var(--tabbar) + 36px + env(safe-area-inset-bottom));
+}
+
+/* Phone: tab bar fixed to the bottom. */
+.tabs {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 6px var(--gutter) calc(6px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 0 4px;
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.tab svg {
+  width: 52px;
+  height: 30px;
+  padding: 3px 14px;
+  border-radius: 999px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: background-color 160ms ease;
+}
+.tab[aria-current="page"] { color: var(--pine); font-weight: 600; }
+.tab[aria-current="page"] svg { background: var(--pine-tint); stroke-width: 1.9; }
+.tab:hover { color: var(--pine); }
+
+/* ---------- Page basics ---------- */
+
+.page { padding-top: 26px; }
+
+.page-head { margin-bottom: 24px; }
+.page-head h1 { margin-bottom: 8px; }
+
+.lede {
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 34em;
+  margin: 0;
+}
+
+.section { margin-top: 44px; }
+.section h2 { margin-bottom: 4px; }
+.section-intro {
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 36em;
+  margin: 0 0 16px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pine);
+  color: #fff;
+  font: 600 15px/1 var(--sans);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.button:hover { background: var(--pine-hover); }
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+/* ---------- Find: moods ---------- */
+
+.moods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.moods li { display: flex; }
+
+.mood-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 14px 16px;
+  background: color-mix(in srgb, var(--mood) 5%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--mood) 14%, var(--line));
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.mood-tile:hover {
+  border-color: color-mix(in srgb, var(--mood) 55%, var(--line));
+  background: color-mix(in srgb, var(--mood) 8%, var(--surface));
+}
+.mood-tile:focus-visible { outline-color: var(--mood); }
+
+.mood-line {
+  width: 40px;
+  height: 20px;
+  margin-bottom: 10px;
+  fill: none;
+  stroke: var(--mood);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mood-name {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.mood-blurb {
+  margin-top: 4px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* ---------- Find: methods ---------- */
+
+.methods {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.methods li + li { border-top: 1px solid var(--line); }
+
+.method-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 18px;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 14px 15px 16px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: background-color 160ms ease;
+}
+.method-row:hover { background: var(--wood); }
+.method-row:focus-visible { outline-offset: -3px; border-radius: 0; }
+
+.method-num {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--string);
+  font-variant-numeric: oldstyle-nums;
+}
+.method-name { display: block; font-weight: 600; font-size: 16px; line-height: 1.35; }
+.method-summary {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+.method-go { width: 18px; height: 18px; align-self: center; color: var(--line-strong); }
+.method-row:hover .method-go { color: var(--pine); }
+
+/* ---------- Find: start from my chords ---------- */
+
+.mine {
+  margin-top: 32px;
+  padding: 20px 18px 20px;
+  background: var(--wood);
+  border: 1px solid var(--wood-line);
+  border-radius: var(--radius);
+}
+.mine h2 { margin-bottom: 6px; }
+.mine p { font-size: 15px; color: var(--ink-soft); margin-bottom: 14px; max-width: 34em; }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.chip {
+  min-width: 46px;
+  padding: 7px 12px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--wood-line);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+/* ---------- Mood view ---------- */
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: -6px 0 10px -6px;
+  padding: 6px 10px 6px 4px;
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.back:hover { color: var(--pine); background: var(--pine-tint); }
+.back .icon { width: 20px; height: 20px; }
+
+.mood-line-big { width: 56px; height: 28px; margin-bottom: 6px; stroke-width: 2.2; }
+
+.progs { display: grid; gap: 12px; }
+
+.prog-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 160ms ease;
+}
+.prog-card:hover { border-color: var(--pine); }
+
+.prog-name {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.prog-chords { display: flex; flex-wrap: wrap; gap: 6px; }
+.prog-chord {
+  min-width: 50px;
+  padding: 9px 10px;
+  text-align: center;
+  background: var(--wood);
+  box-shadow: inset 0 0 0 1px var(--wood-line);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.2;
+}
+.prog-why {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ---------- Wider screens: tabs move up into the header ---------- */
+
+@media (min-width: 760px) {
+  .bar { padding-top: 22px; }
+  .tabs {
+    position: static;
+    display: flex;
+    gap: 2px;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+  .tab {
+    flex-direction: row;
+    gap: 7px;
+    padding: 8px 14px 8px 10px;
+    border-radius: 999px;
+    font-size: 15px;
+  }
+  .tab svg { width: 20px; height: 20px; padding: 0; border-radius: 0; }
+  .tab[aria-current="page"] { background: var(--pine-tint); }
+  .tab[aria-current="page"] svg { background: none; }
+  main { padding-bottom: 72px; }
+  .page { padding-top: 40px; }
+  h1 { font-size: 36px; }
+  .lede { font-size: 18px; }
+  .moods { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .mood-tile { padding: 16px 16px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Short notices: not found, coming soon ---------- */
+
+.notice { padding-top: 48px; max-width: 30em; }
+.notice h1 { margin-bottom: 10px; }
+.notice .lede { margin-bottom: 26px; }

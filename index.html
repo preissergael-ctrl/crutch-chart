@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Find chord progressions by mood, learn why they work, and play them on guitar.">
+  <meta name="theme-color" content="#eceee8">
+  <title>Crutch Chart</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect x=%271%27 y=%271%27 width=%2722%27 height=%2722%27 rx=%275%27 fill=%27%231f3a30%27/%3E%3Cpath d=%27M6 7h12M7.5 7v11M10.5 7v11M13.5 7v11M16.5 7v11M6 11h12M6 14.5h12%27 stroke=%27%23eceee8%27 stroke-width=%271.2%27/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/outfit.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/literata.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="src/ui/app.js"></script>
+</head>
+<body>
+  <button class="skip" type="button">Skip to content</button>
+  <div class="shell">
+    <header class="bar">
+      <a class="brand" href="#/find" aria-label="Crutch Chart, go to Find">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="1" y="1" width="22" height="22" rx="5" fill="currentColor"/>
+          <path d="M6 7h12M7.5 7v11M10.5 7v11M13.5 7v11M16.5 7v11M6 11h12M6 14.5h12" stroke="#eceee8" stroke-width="1.2" fill="none"/>
+          <circle cx="13.5" cy="12.75" r="1.7" fill="#eceee8"/>
+        </svg>
+        <span>Crutch Chart</span>
+      </a>
+      <nav class="tabs" aria-label="Main">
+        <a class="tab" href="#/find" data-tab="find">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2l-1.7 3.9-3.9 1.7 1.7-3.9z"/></svg>
+          <span>Find</span>
+        </a>
+        <a class="tab" href="#/learn" data-tab="learn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5c-2-1.4-4.6-2-8-2v13c3.4 0 6 .6 8 2 2-1.4 4.6-2 8-2v-13c-3.4 0-6 .6-8 2z"/><path d="M12 6.5v13"/></svg>
+          <span>Learn</span>
+        </a>
+        <a class="tab" href="#/saved" data-tab="saved">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg>
+          <span>Saved</span>
+        </a>
+      </nav>
+    </header>
+    <main id="view" tabindex="-1"></main>
+  </div>
+</body>
+</html>
