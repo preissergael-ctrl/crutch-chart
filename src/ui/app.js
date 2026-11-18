@@ -10,6 +10,7 @@ import { findView, moodView } from './views/find.js';
 import { progressionView } from './views/progression.js';
 import { chordView } from './views/chord.js';
 import { methodView } from './views/method.js';
+import { learnView } from './views/learn.js';
 
 // Screens that later tasks build. Until then they show a calm placeholder.
 const comingSoon = {
@@ -27,7 +28,7 @@ const VIEWS = {
   method: methodView,
   prog: progressionView,
   chord: chordView,
-  learn: comingSoon,
+  learn: learnView,
   saved: comingSoon,
   about: comingSoon,
 };

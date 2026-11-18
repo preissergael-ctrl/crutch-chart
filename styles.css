@@ -730,3 +730,44 @@ button.chord { font: inherit; cursor: pointer; width: 100%; }
 .mode-title { margin: 0 0 2px; font-size: 21px; }
 .mode-plain { margin: 0 0 6px; font-size: 15.5px; }
 .mode-card .row-sub strong { color: var(--ink); font-weight: 600; letter-spacing: 0.02em; }
+
+/* ---------- Learn ---------- */
+
+.lessons { counter-reset: none; }
+.lesson-row { grid-template-columns: 28px minmax(0, 1fr) 18px; }
+.lesson-num {
+  width: 26px; height: 26px; margin-top: 1px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; background: var(--pine-tint); color: var(--pine); font: 600 13px/1 var(--sans);
+}
+.lesson .page-head { margin-bottom: 18px; }
+.lesson-pos { margin: 0 0 4px; font-size: 14px; color: var(--ink-soft); }
+.lesson-body { max-width: 36em; }
+.lesson-p { font-size: 17px; line-height: 1.6; margin: 0 0 16px; }
+.lesson-try {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 12px; padding: 13px 14px 14px 16px;
+  background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--pine);
+  border-radius: var(--radius); color: var(--ink); text-decoration: none; transition: border-color 160ms ease;
+}
+.lesson-try:hover { border-color: var(--pine); }
+.lesson-p + .lesson-try, .lesson-neck + .lesson-try { margin-top: 22px; }
+.lesson-try-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.lesson-try-eyebrow { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
+.lesson-try-label { font-weight: 600; font-size: 16px; line-height: 1.35; }
+.lesson-try .prog-chords { margin-top: 4px; }
+.lesson-try-play {
+  width: 40px; height: 40px; padding: 11px; border-radius: 999px; background: var(--pine); color: #fff;
+  fill: currentColor; stroke: none;
+}
+.lesson-neck { margin: 4px 0 20px; }
+.lesson-neck figcaption { margin-top: 8px; font-size: 14.5px; color: var(--ink-soft); }
+.lesson-neck figcaption a { color: var(--pine); font-weight: 500; }
+.lesson-method { margin: 4px 0 0; font-size: 15.5px; }
+.lesson-method a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--pine); font-weight: 500; }
+.lesson-method .icon { width: 18px; height: 18px; }
+.lesson-next {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 34px; padding: 16px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink); text-decoration: none;
+}
+.lesson-next:hover { border-color: var(--pine); }
+.lesson-next-eyebrow { display: block; font-size: 13px; color: var(--ink-soft); }
+.lesson-next-title { display: block; font: 600 18px/1.3 var(--serif); }

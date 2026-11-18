@@ -1,0 +1,250 @@
+// The Learn section: short lessons behind the moods and methods. Pure data, no browser APIs.
+// Block types:
+//   { p: string }                                  a paragraph (400 characters at most)
+//   { try: { r, t, m, label } }                    a button that opens the progression r in key t, mode m
+//   { neck: symbol }                               the easiest shape for a chord, with a link to its page
+//   { method: id }                                 a link to one of the method tools
+// Every fact here is checked against the engine in tests/lessons.test.js.
+// Chord numbers count from the major scale of the home note (Am F C G = i ♭VI ♭III ♭VII).
+
+const tryIt = (label, r, t = 'C', m = 'ionian') => ({ try: { r, t, m, label } });
+
+export const LESSONS = [
+  {
+    id: 'reading-the-neck',
+    title: 'Reading the neck',
+    teaser: 'How the chord drawings in this app match the guitar in your hands.',
+    blocks: [
+      { p: 'The neck drawings are your guitar seen from above while you play. The thickest string, low E, is at the bottom and the thinnest is at the top, the same way tab is written. The nut is on the left, and frets count up to the right.' },
+      { neck: 'C' },
+      { p: 'A dark dot is where a finger presses. The number inside says which finger: 1 is your index, 2 your middle, 3 your ring finger and 4 your pinky.' },
+      { p: 'Left of the nut, a small circle means play that string open, with no finger on it. An X means don’t play it. Here, C has an X on low E, so you strum from the next string up.' },
+      { neck: 'F' },
+      { p: 'A long bar is a barre: one finger lies flat across several strings. Your F is a barre across all six strings at fret 1, with three more fingers on top.' },
+      tryIt('Play your chords and watch the shapes', ['vi', 'IV', 'I', 'V']),
+    ],
+  },
+  {
+    id: 'keys',
+    title: 'Home and keys',
+    teaser: 'Every song has a home note. A key is that home plus the notes that fit with it.',
+    blocks: [
+      { p: 'Play C, F, G and then C again. That last C feels like arriving. Most music has one note and chord like that, where it feels at rest. That’s the home note.' },
+      { p: 'A key is the home note plus a set of seven notes that sound right with it. The key of C major uses C D E F G A B, with no sharps or flats.' },
+      { p: 'Every chord you know fits in that key. Am, F, C, Dm and G are built only from those seven notes. That’s a big part of why they sound good together in any order.' },
+      { p: 'A minor uses the very same seven notes, A B C D E F G, but A is home. Same notes, different home, different mood. You’ll see this idea again.' },
+      tryIt('Hear home', ['I', 'IV', 'V', 'I']),
+      tryIt('Same notes, A as home', ['i', 'iv', 'i'], 'A', 'aeolian'),
+    ],
+  },
+  {
+    id: 'chord-numbers',
+    title: 'Chord numbers',
+    teaser: 'Numbers let one chord pattern work in any key.',
+    blocks: [
+      { p: 'Count up the key from home: in C major, C is 1, D is 2, E is 3, and so on up to B, which is 7. Build a chord on each note and it gets that number.' },
+      { p: 'The numbers are written as Roman numerals. Big letters mean a major chord (bright) and small letters mean a minor chord (softer). In C major: I is C, ii is Dm, iii is Em, IV is F, V is G, vi is Am, and vii° is B°. The little circle means diminished, a tense chord.' },
+      { p: 'Why bother? Because the numbers stay the same when you change key. I–V–vi–IV is C G Am F in C, and G D Em C in G. Same shape of song, just higher.' },
+      { p: 'That’s how the famous loops in this app work: they’re stored as numbers, so you can play them in any key.' },
+      tryIt('I–V–vi–IV in C', ['I', 'V', 'vi', 'IV']),
+      tryIt('The same numbers in G', ['I', 'V', 'vi', 'IV'], 'G'),
+      { method: 'loops' },
+    ],
+  },
+  {
+    id: 'home-away-pull',
+    title: 'Home, away and pull',
+    teaser: 'Each chord has a job: rest at home, wander away, or pull you back.',
+    blocks: [
+      { p: 'Chords in a key don’t all feel the same. Each one has a job, and you can hear it.' },
+      { p: 'Home (I) is where the music rests. Away chords, like IV (F in C) and ii (Dm), leave home and build interest. Pull chords, like V (G), lean hard back toward home.' },
+      { p: 'Then there are home’s cousins, vi (Am) and iii (Em). They feel restful too, but in a different color.' },
+      { p: 'Play C F G C slowly. On G you can feel the music wanting to land, and C answers. That small story, home, away, pull, home, is behind a huge amount of music.' },
+      tryIt('Home, away, pull, home', ['I', 'IV', 'V', 'I']),
+      tryIt('Stop on the pull', ['I', 'IV', 'I', 'V']),
+    ],
+  },
+  {
+    id: 'major-minor',
+    title: 'Major and minor chords',
+    teaser: 'One note, one fret apart, makes a chord bright or soft.',
+    blocks: [
+      { p: 'Play C, then play C minor. Hear how the same chord turns from bright to soft and a little sad?' },
+      { p: 'A chord is usually three notes stacked up: the root (the note it’s named after), a middle note called the 3rd, and a top note called the 5th. C is C E G.' },
+      { p: 'Lower the middle note by one fret and the chord turns minor. C minor is C E♭ G. Raise Am’s middle note and you get A major: A C E becomes A C♯ E.' },
+      { p: 'That’s the whole difference: one note, one fret. Major sounds bright and settled. Minor sounds softer and sadder.' },
+      tryIt('Major, then minor', ['I', 'i']),
+      tryIt('Minor, then major', ['i', 'I'], 'A', 'aeolian'),
+    ],
+  },
+  {
+    id: 'chord-family',
+    title: 'The chord family',
+    teaser: 'Seven chords that belong together. You already know five.',
+    blocks: [
+      { p: 'Build a chord on each of the seven notes of C major, using only notes from the key, and you get seven chords: C, Dm, Em, F, G, Am and B°. That’s the chord family of C major.' },
+      { p: 'You already know five of them: C, Dm, F, G and Am. That’s why your chords sound right together in any order.' },
+      { p: 'The two you’re missing are Em and B°. Em is one of the easiest chords on guitar: only two frets pressed. B° (B diminished) is tense and leans hard toward home, so it usually passes by quickly.' },
+      { neck: 'Em' },
+      { p: 'Every major key has the same pattern of chords: major, minor, minor, major, major, minor, diminished. Learn it once and you know the family of any key.' },
+      tryIt('Play all seven', ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°']),
+      tryIt('Add Em to a loop', ['I', 'iii', 'IV', 'V']),
+      { method: 'family' },
+    ],
+  },
+  {
+    id: 'numbering',
+    title: 'Numbers in a minor key',
+    teaser: 'Why Am F C G is written i–♭VI–♭III–♭VII in this app.',
+    blocks: [
+      { p: 'When home is a minor chord, like Am, this app still counts from the major scale of the home note. That’s how pop and rock players usually write it.' },
+      { p: 'A major is A B C♯ D E F♯ G♯. Your F is one fret below F♯, the 6th note, so it’s ♭VI. The ♭ (flat) means one fret lower than in the major scale. C is ♭III and G is ♭VII. Am F C G is i–♭VI–♭III–♭VII.' },
+      { p: 'The flats tell you which chords sound darker than they would in a major key. And the numbers line up with major-key songs, so I always means home in a major key and i home in a minor key.' },
+      { p: 'Classical books count from the minor scale itself and write the same loop as i–VI–III–VII. Both are right. They’re just two ways to count the same chords.' },
+      tryIt('i–♭VI–♭III–♭VII in A minor', ['i', 'bVI', 'bIII', 'bVII'], 'A', 'aeolian'),
+    ],
+  },
+  {
+    id: 'rotation',
+    title: 'Same chords, new start',
+    teaser: 'Starting a loop on a different chord changes its mood.',
+    blocks: [
+      { p: 'You already do this by ear. Play C G Am F, then play Am F C G. They’re the same four chords in the same circle, but the second one sounds sadder.' },
+      { p: 'Your ear tends to hear the first chord of a loop as home. Start on C (I) and the loop sounds bright. Start on Am (vi), home’s minor cousin, and the same chords lean minor.' },
+      { p: 'A loop of four chords can start in four places. That’s four moods from one set of chords, with nothing new to learn.' },
+      tryIt('Start on C', ['I', 'V', 'vi', 'IV']),
+      tryIt('Start on Am', ['vi', 'IV', 'I', 'V']),
+      tryIt('Start on F', ['IV', 'I', 'V', 'vi']),
+      { method: 'rotate' },
+    ],
+  },
+  {
+    id: 'endings',
+    title: 'Endings',
+    teaser: 'The last two chords decide how a phrase feels finished.',
+    blocks: [
+      { p: 'The last two chords of a phrase are like punctuation. They decide whether it ends with a full stop, a soft sigh or a surprise.' },
+      { p: 'A strong ending goes V to I, G to C in C major. V is the chord that pulls hardest toward home, so landing on I feels finished.' },
+      { p: 'A soft ending goes IV to I, F to C. It’s the gentle “amen” at the end of a hymn.' },
+      { p: 'A surprise ending goes V to vi, G to Am. Your ear expects home and gets its minor cousin instead. It feels unfinished in a good way.' },
+      tryIt('Strong ending', ['I', 'IV', 'V', 'I']),
+      tryIt('Soft ending', ['I', 'V', 'IV', 'I']),
+      tryIt('Surprise ending', ['I', 'IV', 'V', 'vi']),
+      { method: 'tension' },
+    ],
+  },
+  {
+    id: 'circle',
+    title: 'The circle of fifths',
+    teaser: 'Chords that fall like dominoes until they land at home.',
+    blocks: [
+      { p: 'Play Am Dm G C. Each change feels like a natural step, and the last one lands at home. You know all four of these chords.' },
+      { p: 'Here’s why. Count five letters up from D, counting D itself: D E F G A. A is a fifth above D. In this chain each chord’s root (the note it’s named after) is a fifth above the next one’s: A above D, D above G, G above C.' },
+      { p: 'Falling by fifths is one of the strongest moves in music. The last step, G to C, is V to I, the strong ending.' },
+      { p: 'Add Em in front (E is a fifth above A) and the chain gets longer: Em Am Dm G C, or iii–vi–ii–V–I.' },
+      tryIt('vi–ii–V–I', ['vi', 'ii', 'V', 'I']),
+      tryIt('iii–vi–ii–V–I', ['iii', 'vi', 'ii', 'V', 'I']),
+      { method: 'circle' },
+    ],
+  },
+  {
+    id: 'borrowed',
+    title: 'Borrowed chords',
+    teaser: 'Take a chord from the minor key next door for a surprise.',
+    blocks: [
+      { p: 'Play C B♭ F C. The B♭ sounds bigger and a bit rebellious, like classic rock. But B♭ isn’t in C major. The key has B, not B♭.' },
+      { p: 'B♭ comes from C minor, the minor key with the same home note. Using a chord from there in a major song is called borrowing. It adds color without losing home.' },
+      { p: 'The common borrowed chords in C major are ♭VII (B♭), ♭VI (A♭), ♭III (E♭) and iv (F minor). The ♭ marks them as one fret lower than in the major scale.' },
+      { p: 'F minor is a lovely one to try: play C F Fm C. Swapping F for Fm makes the music sigh just before it gets home.' },
+      { neck: 'Bb' },
+      tryIt('Borrow ♭VII', ['I', 'bVII', 'IV', 'I']),
+      tryIt('Borrow iv', ['I', 'IV', 'iv', 'I']),
+      tryIt('Two borrowed chords, then home', ['bVI', 'bVII', 'I']),
+      { method: 'borrow' },
+    ],
+  },
+  {
+    id: 'modes',
+    title: 'Modes',
+    teaser: 'The same seven notes with a different home, each with its own color.',
+    blocks: [
+      { p: 'Remember that C major and A minor share the same seven notes, with a different home? You can make any of those seven notes home. Each choice is a mode, and each has its own color.' },
+      { p: 'Make D home and you get Dorian: minor, but warmer and a little hopeful. Play Dm G with Dm as home. Make G home and you get Mixolydian: major, but relaxed and bluesy. Play G F C.' },
+      { p: 'The color comes from one note. D Dorian has B where plain D minor has B♭. G Mixolydian has F where plain G major has F♯.' },
+      { p: 'There are more. F as home is Lydian, which floats. E as home is Phrygian, which sounds dark and Spanish. A as home is natural minor, which you already play with Am F C G.' },
+      tryIt('Dorian, D as home', ['i', 'IV'], 'D', 'dorian'),
+      tryIt('Mixolydian, G as home', ['I', 'bVII', 'IV'], 'G', 'mixolydian'),
+      tryIt('Lydian, F as home', ['I', 'II'], 'F', 'lydian'),
+      { method: 'modes' },
+    ],
+  },
+  {
+    id: 'colors',
+    title: 'Chord colors',
+    teaser: 'Add or change one note to make a chord dreamy, bluesy or open.',
+    blocks: [
+      { p: 'Play C, then Cmaj7. The second one sounds softer and dreamier. Cmaj7 is just C with one more note on top: C E G plus B.' },
+      { neck: 'Cmaj7' },
+      { p: 'Cmaj7 is even easier than C: lift your index finger off. Small changes like this are how you add color.' },
+      { p: 'Each kind has a feel. maj7 (major 7th) is dreamy. 7 (dominant 7th) is bluesy and wants to move: G7 is G B D plus F. sus2 and sus4 (suspended) swap the middle note for a neighbor: Dsus2 is D E A, Dsus4 is D G A. sus2 sounds open, sus4 hangs. add9 adds a bright, shimmery note.' },
+      tryIt('Dreamy sevenths', ['Imaj7', 'IVmaj7']),
+      tryIt('Smooth sevenths', ['ii7', 'V7', 'Imaj7']),
+      { method: 'spice' },
+    ],
+  },
+  {
+    id: 'slash-chords',
+    title: 'Slash chords',
+    teaser: 'Change the lowest note and the bass starts to walk.',
+    blocks: [
+      { p: 'Play C, G/B, Am. Listen to the lowest notes: C, B, A. The bass walks down one step at a time.' },
+      { p: 'G/B is a slash chord. It means: play a G chord, with B as the lowest note. The letter after the slash is the bass note.' },
+      { neck: 'G/B' },
+      { p: 'When a chord’s lowest note isn’t the note it’s named after, it’s called an inversion. It sounds lighter, and it lets the bass move smoothly from chord to chord.' },
+      { p: 'Keep going: C G/B Am C/G F walks the bass all the way down, C B A G F. Or climb up: C Dm C/E F walks C D E F.' },
+      tryIt('Walking down', ['I', 'V/3', 'vi', 'I/5', 'IV']),
+      tryIt('Climbing up', ['I', 'ii', 'I/3', 'IV']),
+      { method: 'bass' },
+    ],
+  },
+  {
+    id: 'caged',
+    title: 'CAGED shapes',
+    teaser: 'Five open shapes you can slide up the neck to play any chord.',
+    blocks: [
+      { p: 'You already use the CAGED idea. Your F barre is an open E shape slid up one fret, with your index finger lying across the strings where the nut used to be.' },
+      { neck: 'F' },
+      { p: 'CAGED names five open chord shapes: C, A, G, E and D. Slide any of them up the neck with a barre or a finger doing the nut’s job, and it becomes a new chord with the same shape.' },
+      { p: 'B♭ is the open A shape slid up one fret, with a barre across five strings.' },
+      { neck: 'Bb' },
+      { p: 'Any chord can be played in all five shapes. For C they go up the neck in the order of the name: the C shape in open position, then A at fret 3, G at fret 5, E at fret 8 and D at fret 10. The chord pages label each shape for you.' },
+      tryIt('The E shape and the A shape', ['I', 'IV', 'V', 'I'], 'F'),
+    ],
+  },
+  {
+    id: 'capo',
+    title: 'The capo',
+    teaser: 'A clamp that lets your easy shapes play in hard keys.',
+    blocks: [
+      { p: 'A capo is a clamp that presses all six strings at one fret. It raises every string, so the chords you already know sound higher.' },
+      { p: 'Say a song is in B♭: B♭ F Gm E♭. Those are hard shapes. Put a capo on fret 3 and play G D Em C. It sounds exactly the same.' },
+      { p: 'Each fret raises a note by a half step, the smallest step between two notes. G is three half steps below B♭, so with a capo on fret 3 your G shape sounds as B♭.' },
+      { p: 'When a progression in this app has hard chords, look for the capo hint. It tells you which fret to use and which shapes to play.' },
+      tryIt('A hard key, with a capo hint', ['I', 'V', 'vi', 'IV'], 'Bb'),
+    ],
+  },
+  {
+    id: 'strum-and-pick',
+    title: 'Strumming and picking',
+    teaser: 'The same chords strummed or picked can feel like two different songs.',
+    blocks: [
+      { p: 'The chords are only half the song. How you play them, strummed or picked, fast or slow, decides a lot of the mood.' },
+      { p: 'A strum pattern is a rhythm of down and up strokes. The folk strum goes down, down-up, up-down-up, with two short gaps where your hand keeps moving but misses the strings. It fits almost anything.' },
+      { p: 'Picking plays the notes one at a time instead. An arpeggio is a chord played note by note. A Travis pick has your thumb swap between two bass strings while your fingers pick the high ones.' },
+      { p: 'On any progression screen, choose Strum or Pick and tap a pattern to hear it with your chords. Try the same loop both ways and see which mood you like.' },
+      tryIt('Try a strum, then a pick', ['vi', 'IV', 'I', 'V']),
+    ],
+  },
+];
+
+export const lessonById = (id) => LESSONS.find((l) => l.id === id) ?? null;

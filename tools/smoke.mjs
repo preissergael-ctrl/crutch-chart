@@ -36,6 +36,12 @@ export const ROUTES = [
   '#/method/circle?t=A&m=aeolian&n=3',
   '#/method/circle?t=A&m=aeolian&n=5',
   '#/method/nope',
+  '#/learn',
+  '#/learn/borrowed',
+  '#/learn/caged',
+  '#/learn/reading-the-neck',
+  '#/learn/nope',
+  '#/prog?t=C&m=ionian&r=I,bVII,IV,I&src=lesson:borrowed',
 ];
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';

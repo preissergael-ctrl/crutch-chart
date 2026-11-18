@@ -2,6 +2,7 @@
 import { PROGRESSIONS } from '../../content/progressions.js';
 import { MOODS } from '../../content/moods.js';
 import { STRUMS, PICKS } from '../../content/patterns.js';
+import { LESSONS } from '../../content/lessons.js';
 import { progressionChords, explainProgression, parseRoman, KEYS, isMinorMode } from '../../theory/roman.js';
 import { MODES, MODE_INFO } from '../../theory/scales.js';
 import { pc } from '../../theory/notes.js';
@@ -51,6 +52,10 @@ function sourceLine(src) {
     return mood ? `From the ${mood.name.toLowerCase()} mood` : null;
   }
   if (src.startsWith('method:')) return 'Built with one of the methods';
+  if (src.startsWith('lesson:')) {
+    const lesson = LESSONS.find((x) => x.id === src.slice(7));
+    return lesson ? `From the lesson “${lesson.title}”` : null;
+  }
   if (src === 'saved') return 'One of your saved progressions';
   return null;
 }
