@@ -11,6 +11,10 @@ export const ROUTES = [
   '#/find',
   '#/mood/sad',
   '#/mood/nope',
+  '#/prog?t=C&m=ionian&r=I,V,vi,IV&id=axis',
+  '#/prog?t=Bb&m=ionian&r=I,V,vi,IV',
+  '#/prog?t=A&m=aeolian&r=i,bVII,bVI,V&id=andalusian',
+  '#/prog?t=C&m=nope&r=I,V',
 ];
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
@@ -104,11 +108,15 @@ async function main() {
       const sep = base.includes('?') ? '&' : '?';
       const url = `${base}${sep}smoke=${Date.now()}${route}`;
       const onLoad = new Promise((r) => { loaded = r; });
-      await send('Page.navigate', { url });
+      const nav = await send('Page.navigate', { url });
+      if (nav.errorText) errors.push(`${route}: navigation failed: ${nav.errorText}`);
       await Promise.race([onLoad, wait(8000)]);
       loaded = null;
       await send('Runtime.evaluate', { expression: 'document.fonts.ready.then(() => true)', awaitPromise: true });
       await wait(400);
+
+      const hasH1 = await send('Runtime.evaluate', { expression: "!!document.querySelector('#view h1')", returnByValue: true });
+      if (hasH1.result.value !== true) errors.push(`${route}: no #view h1 rendered`);
 
       const { result } = await send('Runtime.evaluate', {
         expression: 'JSON.stringify({ h: document.documentElement.scrollHeight, w: document.documentElement.scrollWidth })',
@@ -126,6 +134,29 @@ async function main() {
       const file = join(outDir, `${fileFor(route)}.png`);
       writeFileSync(file, Buffer.from(shot.data, 'base64'));
       console.log(`ok  ${route}  ->  ${file}`);
+
+      // Playback check: press Play twice (the second press must restart cleanly), then a chord should light up.
+      if (route.includes('id=axis')) {
+        const before = errors.length;
+        const press = "(() => { const b = document.querySelector('.play'); if (!b) return false; b.click(); return true; })()";
+        for (let i = 0; i < 2; i++) {
+          const r = await send('Runtime.evaluate', { expression: press, returnByValue: true });
+          if (r.result.value !== true) errors.push(`${route}: Play button not found`);
+          await wait(150);
+        }
+        let lit = false;
+        for (let i = 0; i < 16 && !lit; i++) {
+          await wait(250);
+          const r = await send('Runtime.evaluate', { expression: "!!document.querySelector('.chord.current')", returnByValue: true });
+          lit = r.result.value === true;
+        }
+        if (!lit) errors.push(`${route}: no .chord.current after pressing Play twice`);
+        else console.log(`ok  ${route}  playback highlights a chord`);
+        const playShot = await send('Page.captureScreenshot', { format: 'png' });
+        writeFileSync(join(outDir, `${fileFor(route)}-playing.png`), Buffer.from(playShot.data, 'base64'));
+        await send('Runtime.evaluate', { expression: "document.querySelector('.stop')?.click()" });
+        if (errors.length === before) console.log(`ok  ${route}  no exceptions while playing`);
+      }
     }
 
     // Close Chrome politely through the browser endpoint, then make sure.

@@ -7,6 +7,7 @@ import { createPlayer } from '../audio/player.js';
 import { parseRoute, routeHash } from './router.js';
 import { h } from './dom.js';
 import { findView, moodView } from './views/find.js';
+import { progressionView } from './views/progression.js';
 
 // Screens that later tasks build. Until then they show a calm placeholder.
 const comingSoon = {
@@ -22,7 +23,7 @@ const VIEWS = {
   find: findView,
   mood: moodView,
   method: comingSoon,
-  prog: comingSoon,
+  prog: progressionView,
   chord: comingSoon,
   learn: comingSoon,
   saved: comingSoon,
@@ -32,7 +33,11 @@ const VIEWS = {
 // Which tab lights up for each screen.
 const TAB_OF = { learn: 'learn', saved: 'saved', about: 'saved' };
 
-const store = createStore();
+// Reading localStorage can throw (blocked site data); fall back to a store that just doesn't persist.
+function makeStore() {
+  try { return createStore(); } catch { return createStore(null); }
+}
+const store = makeStore();
 const engine = createEngine();
 const player = createPlayer(engine);
 const ctx = {

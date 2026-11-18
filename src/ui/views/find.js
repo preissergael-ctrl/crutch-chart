@@ -38,11 +38,10 @@ function moodTile(m) {
       h('span', { class: 'mood-blurb' }, m.blurb)));
 }
 
-function methodRow(m, i) {
+function methodRow(m) {
   return h('li', {},
     h('a', { class: 'method-row', href: routeHash('method', { id: m.id }) },
-      h('span', { class: 'method-num', 'aria-hidden': 'true' }, String(i + 1)),
-      h('span', { class: 'method-text' },
+            h('span', { class: 'method-text' },
         h('span', { class: 'method-name' }, m.name),
         h('span', { class: 'method-summary' }, m.summary)),
       icon('next', 'icon method-go')));
@@ -70,8 +69,8 @@ export const findView = {
       h('ul', { class: 'moods', 'aria-label': 'Moods' }, MOODS.map(moodTile)),
       h('section', { class: 'section', 'aria-labelledby': 'methods-title' },
         h('h2', { id: 'methods-title' }, 'Or build it a way'),
-        h('p', { class: 'section-intro' }, 'Nine ways to make a progression of your own, each small enough to try in a minute.'),
-        h('ol', { class: 'methods' }, METHODS.map(methodRow))),
+        h('p', { class: 'section-intro' }, `${METHODS.length} ways to make a progression of your own, each small enough to try in a minute.`),
+        h('ul', { class: 'methods' }, METHODS.map(methodRow))),
       myChordsCard(known));
   },
 };

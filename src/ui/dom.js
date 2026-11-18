@@ -2,7 +2,7 @@
 
 // h('a', { class: 'x', href: '#/find' }, 'text', child, [more])
 export function h(tag, attrs = {}, ...children) {
-  const svg = tag === 'svg' || tag === 'path' || tag === 'circle' || tag === 'rect' || tag === 'line';
+  const svg = ['svg', 'path', 'circle', 'rect', 'line', 'g', 'text'].includes(tag);
   const el = svg ? document.createElementNS('http://www.w3.org/2000/svg', tag) : document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
     if (v === false || v === null || v === undefined) continue;
@@ -35,6 +35,8 @@ export const firstSentence = (text) => {
 const ICONS = {
   back: 'M14.5 6l-6 6 6 6',
   next: 'M9.5 6l6 6-6 6',
+  play: 'M8.5 5.8v12.4L18.5 12z',
+  stop: 'M7.5 7.5h9v9h-9z',
 };
 
 export function icon(name, cls = 'icon') {
