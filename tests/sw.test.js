@@ -24,7 +24,7 @@ test('service worker precaches every app file', () => {
 });
 
 test('service worker lists only files that exist, under the right cache name', () => {
-  assert.match(sw, /const CACHE = 'crutchchart-v1'/);
+  assert.match(sw, /const CACHE = 'crutchchart-v\d+'/);
   for (const f of listed) {
     if (f === './') continue;
     assert.doesNotThrow(() => readFileSync(new URL(f.slice(2), root)), `${f} is listed but missing`);

@@ -1,7 +1,7 @@
 // Service worker: lets Crutch Chart open with no internet.
 // Strategy: try the network first (so you always get the newest version), fall back to the saved copy offline.
-// Bump CACHE whenever files are added. tests/sw.test.js fails if a file is missing from the list below.
-const CACHE = 'crutchchart-v1';
+// Bump CACHE whenever shipped files are added or changed. tests/sw.test.js fails if a file is missing from the list below.
+const CACHE = 'crutchchart-v2';
 const APP_FILES = [
   './',
   './index.html',

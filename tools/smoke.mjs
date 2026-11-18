@@ -46,6 +46,9 @@ export const ROUTES = [
   '#/prog?t=A&m=aeolian&r=i,bVII,bVI,V&src=saved&bpm=70&b=2&p=folk&k=strum',
   '#/saved',
   '#/about',
+  '#/prog?t=C&m=ionian&r=Imaj7,vi7,ii7,V7&id=romantic-7ths',
+  '#/prog?t=A&m=mixolydian&r=I7,I7,I7,I7,IV7,IV7,I7,I7,V7,IV7,I7,V7&id=twelve-bar',
+  '#/prog?t=A&m=aeolian&r=i,bVII,bVI,V&id=andalusian&src=saved&n=Rainy%20window',
 ];
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
@@ -147,6 +150,7 @@ async function main() {
           version: 1, known: ['Am', 'F', 'C', 'Dm', 'G', 'Bb7'], settings: { bpm: 90, patternId: 'folk', kind: 'strum', lastKey: null },
           saved: [
             { id: 'a1', name: 'Rainy window', tonic: 'A', mode: 'aeolian', chords: [ch('i', 'Am', 'm', 'A'), ch('bVII', 'G', '', 'G'), ch('bVI', 'F', '', 'F'), ch('V', 'E', '', 'E')], bpm: 70, beatsPerChord: 2, timeSig: 4, patternId: 'folk', kind: 'strum', source: 'saved', createdAt: 1 },
+            { id: 'bad', name: 'Broken', tonic: 'A', mode: 'aeolian', chords: [null] },
             { id: 'b2', name: 'Morning in Bb', tonic: 'Bb', mode: 'ionian', chords: [ch('I', 'Bb', '', 'Bb'), ch('V', 'F', '', 'F'), ch('vi', 'Gm', 'm', 'G'), ch('IV', 'Eb', '', 'Eb')], bpm: 100, beatsPerChord: 4, timeSig: 4, patternId: 'folk', kind: 'strum', source: 'custom', createdAt: 2 },
           ],
         };
@@ -180,6 +184,15 @@ async function main() {
       writeFileSync(file, Buffer.from(shot.data, 'base64'));
       console.log(`ok  ${route}  ->  ${file}`);
 
+      if (route.includes('n=Rainy')) {
+        const r = await send('Runtime.evaluate', { expression: "document.querySelector('#view h1').textContent + ' | ' + (document.querySelector('.why-text')?.textContent || '')", returnByValue: true });
+        if (!r.result.value.startsWith('Rainy window | The chords walk down')) errors.push(`${route}: saved name or why text missing (${r.result.value.slice(0, 80)})`);
+      }
+      if (route.includes('id=twelve-bar')) {
+        const r = await send('Runtime.evaluate', { expression: "[...document.querySelectorAll('.why-borrow')].map((e) => e.textContent).join(' | ')", returnByValue: true });
+        if (r.result.value.includes('harmonic') || !r.result.value.includes('A major')) errors.push(`${route}: borrowed labels are ${r.result.value}`);
+      }
+
       if (route === '#/method/family') {
         const r = await send('Runtime.evaluate', { expression: 'document.body.innerText', returnByValue: true });
         if (!r.result.value.includes('You already know 5 of the 7 chords in C major')) errors.push(`${route}: family headline is wrong`);
@@ -202,6 +215,19 @@ async function main() {
         if (uni !== 'Added F♯m.') errors.push(`${route}: typing f♯m said "${uni}"`);
         const opens = await send('Runtime.evaluate', { expression: "document.querySelector('.saved-row .button')?.getAttribute('href')", returnByValue: true });
         if (!String(opens.result.value).includes('bpm=70')) errors.push(`${route}: Open link lacks saved settings (${opens.result.value})`);
+        if (!String(opens.result.value).includes('n=Rainy%20window')) errors.push(`${route}: Open link lacks the saved name (${opens.result.value})`);
+        const del = await send('Runtime.evaluate', {
+          expression: `(() => { document.querySelector('.saved-row .button.ghost').click(); document.querySelector('.saved-row .confirm-q + .button').click();
+            const a = document.activeElement; return JSON.stringify({ rows: document.querySelectorAll('.saved-row').length, focus: a ? a.tagName + ' ' + (a.getAttribute('aria-label') || a.textContent) : 'none' }); })()`,
+          returnByValue: true,
+        });
+        const d = JSON.parse(del.result.value);
+        if (d.rows !== 1 || !d.focus.startsWith('A Open Morning')) errors.push(`${route}: after delete, rows ${d.rows}, focus on ${d.focus}`);
+        const chip = await send('Runtime.evaluate', {
+          expression: "(() => { document.querySelector('.chip-x').click(); const a = document.activeElement; return a ? a.className + ' ' + a.getAttribute('aria-label') : 'none'; })()",
+          returnByValue: true,
+        });
+        if (!String(chip.result.value).startsWith('chip-x Remove')) errors.push(`${route}: after removing a chip, focus on ${chip.result.value}`);
         if (errors.length === 0 || !errors.some((e) => e.startsWith(route))) console.log(`ok  ${route}  my chords validate, add, and the Open link carries saved settings`);
       }
 
@@ -252,6 +278,7 @@ async function main() {
       const swSource = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
       const listed = [...new Set([...swSource.matchAll(/'(\.\/[^']*)'/g)].map((m) => m[1]))];
       const expected = listed.length;
+      const cacheName = /const CACHE = '([^']+)'/.exec(swSource)[1];
       const onLoad = new Promise((r) => { loaded = r; });
       await send('Page.navigate', { url: base });
       await Promise.race([onLoad, wait(8000)]);
@@ -260,7 +287,7 @@ async function main() {
       const cached = await send('Runtime.evaluate', {
         expression: `navigator.serviceWorker.ready.then(async () => {
           const list = ${JSON.stringify(listed)};
-          const cache = await caches.open('crutchchart-v1');
+          const cache = await caches.open(${JSON.stringify(cacheName)});
           let missing = list;
           for (let i = 0; i < 80 && missing.length; i++) {
             const have = new Set((await cache.keys()).map((r) => r.url));
