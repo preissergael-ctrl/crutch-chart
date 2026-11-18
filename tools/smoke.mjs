@@ -15,6 +15,10 @@ export const ROUTES = [
   '#/prog?t=Bb&m=ionian&r=I,V,vi,IV',
   '#/prog?t=A&m=aeolian&r=i,bVII,bVI,V&id=andalusian',
   '#/prog?t=C&m=nope&r=I,V',
+  '#/chord/F',
+  '#/chord/G%2FB',
+  '#/chord/Bm7b5',
+  '#/chord/H',
 ];
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';

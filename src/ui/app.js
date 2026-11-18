@@ -8,6 +8,7 @@ import { parseRoute, routeHash } from './router.js';
 import { h } from './dom.js';
 import { findView, moodView } from './views/find.js';
 import { progressionView } from './views/progression.js';
+import { chordView } from './views/chord.js';
 
 // Screens that later tasks build. Until then they show a calm placeholder.
 const comingSoon = {
@@ -24,7 +25,7 @@ const VIEWS = {
   mood: moodView,
   method: comingSoon,
   prog: progressionView,
-  chord: comingSoon,
+  chord: chordView,
   learn: comingSoon,
   saved: comingSoon,
   about: comingSoon,
