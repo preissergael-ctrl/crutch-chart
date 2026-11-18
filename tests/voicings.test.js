@@ -37,3 +37,8 @@ test('minor standard first choices', () => {
   assert.equal(keys('Gm')[0], '355333'); assert.equal(keys('C#m')[0], 'x46654'); assert.equal(keys('Fm')[0], '133111');
   assert.equal(generateVoicings('C#m')[0].caged, 'A');
 });
+test('barre only when needed', () => {
+  for (const [t, f] of [['xx0232', [null,null,null,1,3,2]], ['x02220', [null,null,1,2,3,null]], ['022000', [null,1,2,null,null,null]]]) {
+    const r = assignFingers(fromTab(t)); assert.deepEqual(r.fingers, f); assert.equal(r.barre, null); }
+  assert.ok(assignFingers(fromTab('133211')).barre); assert.ok(assignFingers(fromTab('x24432')).barre); assert.ok(assignFingers(fromTab('x13331')).barre);
+});

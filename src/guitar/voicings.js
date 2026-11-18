@@ -34,7 +34,7 @@ export function assignFingers(frets) {
   const m = Math.min(...fretted.map(([f]) => f));
   const atM = fretted.filter(([f]) => f === m).map(([, s]) => s);
   let barre = null;
-  if (atM.length >= 2) {
+  if (fretted.length > 4 && atM.length >= 2) {
     const from = Math.min(...atM);
     const to = Math.max(...atM);
     let ok = true;
