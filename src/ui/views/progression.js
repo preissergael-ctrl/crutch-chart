@@ -1,4 +1,4 @@
-// Progression screen (#/prog?t=&m=&r=&id=&src=): chords with shapes, why it works, play, save.
+// Progression screen (#/prog?t=&m=&r=&id=&src=&n=): chords with shapes, why it works, play, save.
 import { PROGRESSIONS } from '../../content/progressions.js';
 import { MOODS } from '../../content/moods.js';
 import { STRUMS, PICKS } from '../../content/patterns.js';
@@ -45,6 +45,20 @@ export function valid(params) {
   return true;
 }
 
+// A saved progression's name from the link (n=): trimmed, 1 to 60 characters, no control characters.
+export function savedName(n) {
+  if (typeof n !== 'string') return null;
+  const s = n.trim();
+  return s && s.length <= 60 && !/[\x00-\x1f\x7f]/.test(s) ? s : null;
+}
+
+// The named progression for id=, only when its chords and mode are the ones in the link.
+export function entryFor({ id, m, r }) {
+  if (typeof id !== 'string' || !Object.hasOwn(PROGRESSIONS, id)) return null;
+  const e = PROGRESSIONS[id];
+  return e.mode === m && Array.isArray(r) && e.romans.length === r.length && e.romans.every((x, i) => x === r[i]) ? e : null;
+}
+
 function sourceLine(src) {
   if (typeof src !== 'string') return null;
   if (src.startsWith('mood:')) {
@@ -79,7 +93,8 @@ export const progressionView = {
     if (!valid(params)) return broken();
 
     const { t: tonic, m: mode, r: romans, src } = params;
-    const entry = Object.hasOwn(PROGRESSIONS, params.id ?? '') ? PROGRESSIONS[params.id] : null;
+    const entry = entryFor(params);
+    const name = savedName(params.n);
     // Saved progressions reopen with their own settings through extra query params, each one validated here:
     //   bpm=50..160  b=2|4 (beats per chord)  p=<patternId>  k=strum|pick  ts=3|4 (only when there is no id)
     const timeSig = entry ? entry.timeSig : (params.ts === '3' ? 3 : 4);
@@ -190,7 +205,7 @@ export const progressionView = {
       keyList.map((k) => h('option', { value: k, selected: k === tonic }, `${prettyChord(k)}${minor ? ' minor' : ' major'}`)));
     keySelect.addEventListener('change', () => {
       carry = { bpm, beats, loop, countIn, kind, patternId: pattern.id, resume: active() };
-      ctx.go('prog', { t: keySelect.value, m: mode, r: romans, src, id: params.id, ts: params.ts });
+      ctx.go('prog', { t: keySelect.value, m: mode, r: romans, src, id: entry ? params.id : undefined, ts: params.ts, n: name ?? undefined });
     });
 
     const bpmOut = h('output', { class: 'tempo-out', for: 'tempo' }, String(bpm));
@@ -261,7 +276,7 @@ export const progressionView = {
       : null;
 
     // ---- Save ----
-    const defaultName = entry ? entry.name : 'My progression';
+    const defaultName = name ?? (entry ? entry.name : 'My progression');
     const saveBox = h('div', { class: 'save' });
     const saveStatus = h('p', { class: 'save-status', role: 'status' });
     const openSave = h('button', { type: 'button', class: 'button ghost', onclick: () => showForm() }, 'Save');
@@ -281,6 +296,7 @@ export const progressionView = {
           shapes: voicings.map((v) => v.key),
           beatsPerChord: beats, timeSig, bpm, patternId: pattern.id, kind,
           source: src || 'custom',
+          ...(entry ? { progId: params.id } : {}),
         });
         saveBox.replaceChildren(openSave);
         saveStatus.replaceChildren('Saved. ', h('a', { href: routeHash('saved') }, 'See your saved progressions'));
@@ -299,7 +315,7 @@ export const progressionView = {
     const page = h('div', { class: 'page prog' },
       h('a', { class: 'back', href: routeHash('find') }, icon('back'), 'Find'),
       h('header', { class: 'page-head' },
-        h('h1', { tabindex: '-1' }, entry ? entry.name : 'Your progression'),
+        h('h1', { tabindex: '-1' }, name ?? (entry ? entry.name : 'Your progression')),
         srcText ? h('p', { class: 'lede' }, srcText) : null),
       h('div', { class: 'keybar' },
         h('label', { for: 'key-pick' }, 'Key'),
@@ -314,8 +330,8 @@ export const progressionView = {
       h('section', { class: 'section player', 'aria-labelledby': 'play-title' },
         h('h2', { id: 'play-title' }, 'Play it'),
         h('div', { class: 'play-row' }, playBtn, stopBtn,
-          toggle('Loop', () => loop, (v) => { loop = v; }),
-          toggle('Count-in', () => countIn, (v) => { countIn = v; })),
+          toggle('Loop', () => loop, (v) => { loop = v; restartIfPlaying(); }),
+          toggle('Count-in', () => countIn, (v) => { countIn = v; restartIfPlaying(); })),
         note,
         h('div', { class: 'field' },
           h('label', { for: 'tempo' }, 'Tempo'),
