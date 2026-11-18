@@ -3,20 +3,32 @@ const MAIN_CAP = 12;
 
 const fretted = (v) => v.frets.filter((f) => f > 0);
 
-// Neck position of a shape: 'open' (open strings, nothing above fret 4) or its lowest fretted fret.
+// True when a muted string sits between two sounding strings.
+export function hasInnerMute(frets) {
+  const on = frets.map((f, i) => (f === null ? -1 : i)).filter((i) => i >= 0);
+  return on.length > 0 && frets.slice(on[0], on[on.length - 1] + 1).includes(null);
+}
+
+// Neck position of a shape: 'open' (open strings, nothing above fret 4, no muted string in the
+// middle) or its lowest fretted fret.
 export function positionOf(v) {
   const nz = fretted(v);
   if (!nz.length) return 'open';
-  if (v.frets.includes(0) && Math.max(...nz) <= 4) return 'open';
+  if (v.frets.includes(0) && Math.max(...nz) <= 4 && !hasInnerMute(v.frets)) return 'open';
   return Math.min(...nz);
 }
 
 // voicings arrive easiest first and keep that order. Keeps the best shape in each neck position,
-// plus the best shape for each CAGED letter at each position.
+// plus the best shape for each CAGED letter at each position. Leaves out odd shapes: any shape with a muted
+// string in the middle (a CAGED shape never has one, so those are only fragments of it), and non-CAGED
+// shapes that mix open strings with frets high up the neck.
+const odd = (v) => hasInnerMute(v.frets) || (!v.caged && v.frets.includes(0) && v.baseFret > 5);
+
 export function mainShapes(voicings, cap = MAIN_CAP) {
   const seen = new Set();
   const out = [];
   for (const v of voicings) {
+    if (odd(v)) continue;
     const pos = positionOf(v);
     const keys = [`p${pos}`];
     if (v.caged) keys.push(`c${v.caged}${pos}`);
